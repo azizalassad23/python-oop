@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OOP // PYTHON</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=JetBrains+Mono:wght@400;700&family=Silkscreen&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-dark: #090a0f;
+            --cyber-yellow: #fcee0a;
+            --cyber-blue: #00f0ff;
+            --cyber-red: #ff003c;
+            --cyber-green: #00ff66;
+            --font-ui: 'Share Tech Mono', monospace;
+            --font-header: 'Silkscreen', cursive;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-dark);
+            color: #e0e0e0; font-family: var(--font-ui);
+            margin: 0; padding: 0; min-height: 100vh;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background-image: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 240, 255, 0.05) 3px);
+        }
+
+        header {
+            text-align: center; margin-bottom: 50px;
+        }
+
+        h1 { 
+            font-family: var(--font-header); font-size: 3.5rem; margin: 0; 
+            color: var(--cyber-yellow); text-shadow: 4px 4px 0px var(--cyber-red);
+        }
+
+        .subtitle {
+            color: var(--cyber-blue); font-size: 1.2rem; letter-spacing: 3px;
+            margin-top: 10px; display: block;
+        }
+
+        /* CARD CONTAINER */
+        .mission-grid {
+            display: flex; gap: 30px; flex-wrap: wrap; justify-content: center;
+            max-width: 1200px; padding: 20px;
+        }
+
+        /* MISSION CARD */
+        .card {
+            background: rgba(10, 10, 15, 0.9);
+            border: 2px solid #333;
+            width: 320px; padding: 30px 20px;
+            text-align: center; position: relative;
+            transition: all 0.3s ease; text-decoration: none;
+            display: flex; flex-direction: column;
+        }
+
+        .card::before {
+            content: ""; position: absolute; top: 0; left: 0;
+            width: 100%; height: 5px; background: #333; transition: 0.3s;
+        }
+
+        /* CARD HOVER EFFECTS */
+        .card:hover { transform: translateY(-10px); background: #111; }
+        
+        /* THEME: PEMULA */
+        .card.pemula:hover { border-color: var(--cyber-green); box-shadow: 0 0 25px rgba(0, 255, 102, 0.2); }
+        .card.pemula:hover::before { background: var(--cyber-green); }
+        .card.pemula:hover h2 { color: var(--cyber-green); text-shadow: 2px 2px 0px #000; }
+
+        /* TEXT INSIDE CARDS */
+        h2 {
+            font-family: var(--font-header); font-size: 1.8rem;
+            color: #fff; margin-top: 10px; transition: 0.3s;
+        }
+
+        .level-tag {
+            font-size: 0.9rem; color: #888; letter-spacing: 2px;
+        }
+
+        p { color: #aaa; font-size: 1rem; line-height: 1.5; flex-grow: 1; }
+
+        .btn-enter {
+            display: inline-block; margin-top: 20px; padding: 12px 20px;
+            font-family: var(--font-header); font-size: 1rem;
+            background: transparent; color: #fff; border: 1px solid #555;
+            transition: 0.3s;
+        }
+
+        .card:hover .btn-enter { background: #fff; color: #000; border-color: #fff; }
+
+        /* FOOTER */
+        footer {
+            margin-top: 60px; color: #555; font-size: 0.9rem; letter-spacing: 2px;
+            text-align: center;
+        }
+        
+        @media (max-width: 800px) {
+            h1 { font-size: 2.5rem; }
+            .mission-grid { flex-direction: column; align-items: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>SYSTEM_LOGIN</h1>
+        <span class="subtitle">SELECT YOUR EVALUATION PROTOCOL</span>
+    </header>
+
+    <div class="mission-grid">
+        
+        <a href="pertemuan1.html" class="card pemula">
+            <div class="level-tag">// TIER 01</div>
+            <h2>FUNDAMENTAL 1</h2>
+            <p>Pengenalan Class & Object</p>
+            <div class="btn-enter">>>> INITIATE</div>
+        </a>
+
+        </div>
+
+    <footer>
+        M. AZIZ AL ASSAD, S.T. , GR. // 2026
+    </footer>
+
+</body>
+</html>

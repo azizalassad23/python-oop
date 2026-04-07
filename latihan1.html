@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EVALUATION // NODE 01 OOP</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=JetBrains+Mono:wght@400;700&family=Silkscreen&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+
+    <style>
+        /* SOFT SYNTHWAVE PALETTE */
+        :root {
+            --bg-dark: #13141c;
+            --bg-panel: #1e1e2f;
+            --cyber-green: #6ee7b7;
+            --cyber-blue: #7dd3fc;
+            --cyber-yellow: #fde047;
+            --cyber-pink: #f472b6;
+            --cyber-purple: #c084fc;
+            --text-main: #cbd5e1;
+            
+            --font-ui: 'Share Tech Mono', monospace;
+            --font-code: 'JetBrains Mono', monospace;
+            --font-header: 'Silkscreen', cursive;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-dark); color: var(--text-main); 
+            font-family: var(--font-ui); margin: 0; padding: 0; 
+            height: 100vh; display: flex; flex-direction: column; overflow: hidden;
+            background-image: 
+                radial-gradient(rgba(110, 231, 183, 0.05) 1px, transparent 1px),
+                repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.15) 3px);
+            background-size: 30px 30px, 100% 4px; box-shadow: inset 0 0 100px rgba(0,0,0,0.5);
+        }
+
+        /* OVERLAYS */
+        .overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(19, 20, 28, 0.98); z-index: 9999;
+            display: flex; flex-direction: column; justify-content: center; 
+            align-items: center; text-align: center; padding: 20px;
+        }
+
+        input.cyber-input {
+            background: rgba(30, 30, 47, 0.8); border: 2px solid var(--cyber-purple);
+            color: #fff; padding: 15px; width: 300px; max-width: 100%; margin: 10px;
+            font-family: var(--font-ui); font-size: 1.1rem; text-align: center; border-radius: 6px;
+        }
+        input.cyber-input:focus { outline: none; box-shadow: 0 0 15px rgba(192,132,252,0.4); }
+
+        .btn-cyber {
+            background: var(--cyber-purple); color: #000; border: none; border-radius: 6px;
+            padding: 15px 40px; font-family: var(--font-header); font-size: 1.2rem;
+            cursor: pointer; margin-top: 20px; transition: 0.3s; max-width: 100%;
+        }
+        .btn-cyber:hover { background: var(--cyber-blue); box-shadow: 0 0 20px rgba(125,211,252,0.5); transform: translateY(-2px); }
+
+        /* LAYOUT */
+        header {
+            height: 70px; background: rgba(15, 17, 26, 0.9); border-bottom: 2px solid var(--cyber-purple);
+            display: flex; align-items: center; justify-content: space-between; padding: 0 30px;
+        }
+        h1 { font-family: var(--font-header); font-size: 1.5rem; margin: 0; color: var(--cyber-purple); }
+        .timer-box { font-size: 1.5rem; color: var(--cyber-pink); font-family: var(--font-header); letter-spacing: 2px; }
+        
+        .workspace { display: flex; height: calc(100vh - 70px); }
+        .problem-panel { 
+            width: 35%; background: rgba(19, 20, 28, 0.8); border-right: 1px solid #334155; 
+            padding: 30px; overflow-y: auto; 
+        }
+        .editor-panel { width: 65%; display: flex; flex-direction: column; background: #0f111a; }
+        
+        textarea#code-editor {
+            flex: 1; background: #0f111a; color: var(--cyber-green); border: none; padding: 20px;
+            font-family: var(--font-code); font-size: 16px; resize: none; outline: none; line-height: 1.5;
+        }
+        textarea#code-editor:focus { background: #13141c; box-shadow: inset 4px 0 0 var(--cyber-purple); }
+        
+        .terminal {
+            height: 180px; background: #000; color: #f8fafc; padding: 15px;
+            font-family: var(--font-code); font-size: 14px; border-top: 1px solid #334155; overflow-y: auto;
+        }
+        .toolbar {
+            height: 65px; background: #1e1e2f; border-top: 1px solid #334155;
+            display: flex; justify-content: flex-end; align-items: center; padding: 0 20px; gap: 15px;
+        }
+        
+        .level-badge { background: var(--cyber-purple); color: #000; padding: 4px 10px; font-family: var(--font-header); border-radius: 4px; }
+        h2 { color: var(--cyber-blue); font-family: var(--font-header); font-size: 1.4rem; margin-top: 15px;}
+
+        .btn-run { background: var(--cyber-purple); color: #000; padding: 10px 20px; border: none; border-radius: 4px; font-family: var(--font-header); cursor: pointer; transition: 0.2s; }
+        .btn-run:hover { background: var(--cyber-blue); box-shadow: 0 0 15px rgba(125,211,252,0.4); }
+        .btn-next { background: var(--cyber-green); color: #000; padding: 10px 20px; border: none; border-radius: 4px; font-family: var(--font-header); cursor: pointer; display: none; transition: 0.2s; }
+        .btn-next:hover { background: #fff; }
+
+        /* WARNING SCREENS */
+        #warning-screen { background: rgba(244, 114, 182, 0.95); color: #000; }
+        #lockdown-screen { background: rgba(147, 51, 234, 0.95); color: #fff; }
+        .lock-timer { font-size: 5rem; font-family: var(--font-header); margin: 20px 0; color: #fff; text-shadow: 0 0 20px rgba(0,0,0,0.5); }
+
+        /* MOBILE RESPONSIVE */
+        @media (max-width: 768px) {
+            body { height: auto; overflow-y: auto; }
+            header { padding: 15px; height: auto; flex-direction: column; gap: 10px; text-align: center; }
+            .timer-box { font-size: 1.3rem; width: 100%; }
+            .workspace { flex-direction: column; height: auto; overflow: visible; }
+            .problem-panel { width: 100%; height: auto; min-height: 200px; border-right: none; border-bottom: 2px solid var(--cyber-purple); padding: 20px; }
+            .editor-panel { width: 100%; height: auto; }
+            textarea#code-editor { height: 280px; flex: none; }
+            .terminal { height: 150px; }
+            .toolbar { flex-direction: column; height: auto; padding: 20px; gap: 15px; justify-content: center; background: #0f111a; }
+            #status-msg { width: 100%; text-align: center; margin: 0; }
+            .btn-run, .btn-next { width: 100%; padding: 15px; font-size: 1.2rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="login-screen" class="overlay">
+        <h1 style="font-size: 2.5rem; color: var(--cyber-blue); font-family: var(--font-header);">LATIHAN: NODE 01</h1>
+        <p style="color: var(--cyber-pink); font-weight: bold; margin-bottom: 30px;">[ OOP FUNDAMENTALS ] 10 SOAL. ANTI-CHEAT ACTIVE.</p>
+        <input type="text" id="inp-nama" class="cyber-input" placeholder="NAMA LENGKAP" autocomplete="off">
+        <input type="text" id="inp-kelas" class="cyber-input" placeholder="KELAS (Ex: XI-1)" autocomplete="off">
+        <button class="btn-cyber" onclick="initializeNewExam()">MULAI EVALUASI</button>
+    </div>
+
+    <div id="loader" class="overlay" style="display:none;">
+        <h2 style="font-family: var(--font-header); color: var(--cyber-purple); font-size: 2rem;">PREPARING EXAM...</h2>
+    </div>
+
+    <div id="warning-screen" class="overlay" style="display:none;">
+        <h1 style="font-size: 3rem; font-family: var(--font-header); margin: 0; color: #000;">PERINGATAN!</h1>
+        <h2 style="color: #000;">SISTEM MENDETEKSI PERPINDAHAN TAB.</h2>
+        <p style="font-size: 1.1rem; font-weight: bold; max-width: 600px; color: #111;">
+            Jangan tinggalkan halaman ujian. Jika Anda memindahkan tab lagi, ujian akan DIKUNCI SELAMA 20 MENIT.
+        </p>
+        <button class="btn-cyber" style="background: #000; color: var(--cyber-pink);" onclick="dismissWarning()">SAYA MENGERTI</button>
+    </div>
+
+    <div id="lockdown-screen" class="overlay" style="display:none;">
+        <h1 style="font-size: 3.5rem; font-family: var(--font-header); margin: 0; color: #fff;">SISTEM TERKUNCI</h1>
+        <h2 id="lockdown-warning" style="color: var(--cyber-yellow);">PELANGGARAN TAB TERDETEKSI.</h2>
+        <div class="lock-timer" id="lock-timer">20:00</div>
+        <p style="font-size: 1.1rem; color: #e2e8f0;">Refresh halaman tidak akan menghilangkan timer ini.</p>
+    </div>
+
+    <header>
+        <h1>OOP // LATIHAN_01</h1>
+        <div style="display: flex; gap: 20px; align-items: center;">
+            <div style="color: var(--cyber-pink); font-size: 0.9rem;">PELANGGARAN: <span id="violation-count" style="font-weight:bold; font-size: 1.2rem;">0</span></div>
+            <div class="timer-box" id="main-timer">90:00</div>
+        </div>
+    </header>
+
+    <div class="workspace">
+        <div class="problem-panel">
+            <span class="level-badge" id="lvl-badge">SOAL 01/10</span>
+            <h2 id="q-title">...</h2>
+            <div id="q-desc" style="color:#cbd5e1; line-height:1.6; font-size: 1.1rem;">...</div>
+        </div>
+
+        <div class="editor-panel">
+            <textarea id="code-editor" spellcheck="false"></textarea>
+            <div class="terminal" id="console">> TERMINAL_READY...</div>
+            <div class="toolbar">
+                <span id="status-msg" style="margin-right:auto; color:var(--cyber-blue)">Menunggu kode...</span>
+                <button class="btn-run" id="btn-run" onclick="runCode()">EKSEKUSI ▶</button>
+                <button class="btn-next" id="btn-next" onclick="nextQuestion()">SOAL SELANJUTNYA >></button>
+            </div>
+        </div>
+    </div>
+
+    <div id="result-screen" class="overlay" style="display:none;">
+        <h1 style="font-size: 3.5rem; color: var(--cyber-green); font-family: var(--font-header);">LATIHAN SELESAI</h1>
+        <p style="font-size: 1.2rem;">SKOR AKHIR: <span id="final-score" style="color:var(--cyber-yellow); font-weight: bold; font-size: 2.5rem;">0</span> / 1000</p>
+        <p style="font-size: 1rem; color: var(--cyber-pink);">TOTAL PELANGGARAN: <span id="final-violations">0</span></p>
+        <div id="send-status" style="margin-top: 20px; color: var(--cyber-blue);">Menyimpan data ke Server...</div>
+        <br>
+        <button class="btn-cyber" onclick="window.location.href='index.html'" style="background:transparent; color:var(--text-main); border: 1px solid var(--text-main);">KEMBALI KE HUB</button>
+    </div>
+
+    <script>
+        // --- SETUP GOOGLE SHEET URL ---
+        const GOOGLE_SCRIPT_URL = 'URL_GOOGLE_SCRIPT_ANDA_DISINI'; // <-- PASTE URL DISINI
+
+        let pyodide;
+        let studentName = "", studentClass = "";
+        let examEndTime = 0; let lockEndTime = 0; 
+        let examTimerInterval, lockTimerInterval;
+        let currentQ = 0, score = 0, violations = 0;
+        let isExamActive = false, isLocked = false, isWarningOpen = false;
+        let lastPenaltyTime = 0;
+
+        // --- DATABASE SOAL (OOP PERTEMUAN 1) ---
+        const questions = [
+            { title: "01. CLASS KOSONG", desc: "Buatlah sebuah blueprint atau <code>class</code> bernama <strong>Buku</strong>. Gunakan perintah <code>pass</code> di dalamnya agar tidak error.", default: "# Buat class Buku di bawah ini\n\n", check: (c, o) => c.includes("class Buku:") && c.includes("pass") },
+            { title: "02. INSTANSIASI", desc: "Class <strong>Siswa</strong> sudah disiapkan. Cetak wujud nyatanya dengan membuat object bernama <strong>murid1</strong> dari class tersebut.", default: "class Siswa:\n    pass\n\n# Buat object murid1 di sini\n", check: (c, o) => c.replace(/\s/g, '').includes("murid1=Siswa()") },
+            { title: "03. ATRIBUT PERTAMA", desc: "Berikan atribut <strong>nama</strong> dengan nilai <code>'Budi'</code> ke dalam objek <strong>player</strong>.", default: "class Karakter:\n    pass\n\nplayer = Karakter()\n\n# Beri atribut nama ke player\n", check: (c, o) => c.replace(/\s/g, '').includes("player.nama='Budi'") || c.replace(/\s/g, '').includes('player.nama="Budi"') },
+            { title: "04. CETAK ATRIBUT", desc: "Objek <strong>kucing1</strong> sudah memiliki atribut <strong>warna</strong>. Cetak (print) atribut warna tersebut ke layar.", default: "class Kucing:\n    pass\n\nkucing1 = Kucing()\nkucing1.warna = 'Hitam'\n\n# Print atribut warna dari kucing1\n", check: (c, o) => c.replace(/\s/g, '').includes("print(kucing1.warna)") && o.includes("Hitam") },
+            { title: "05. MULTIPLE OBJECTS", desc: "Dari class <strong>Mobil</strong>, buatlah DUA objek sekaligus: <strong>mobil_a</strong> dan <strong>mobil_b</strong>.", default: "class Mobil:\n    pass\n\n# Buat mobil_a dan mobil_b\n", check: (c, o) => c.replace(/\s/g, '').includes("mobil_a=Mobil()") && c.replace(/\s/g, '').includes("mobil_b=Mobil()") },
+            { title: "06. MULTIPLE ATRIBUT", desc: "Berikan atribut <strong>merk</strong> = 'Toyota' dan atribut <strong>roda</strong> = 4 pada objek <strong>kendaraan1</strong>.", default: "class Kendaraan:\n    pass\nkendaraan1 = Kendaraan()\n\n# Tambahkan atribut merk dan roda\n", check: (c, o) => c.includes("kendaraan1.merk") && c.includes("kendaraan1.roda") && (c.includes("Toyota") || c.includes('Toyota')) && c.includes("4") },
+            { title: "07. OBJEK MANDIRI", desc: "Buat atribut <strong>hp</strong> (health point) untuk dua objek. <strong>hero1</strong> memiliki hp 100, dan <strong>hero2</strong> memiliki hp 80.", default: "class Hero:\n    pass\n\nhero1 = Hero()\nhero2 = Hero()\n\n# Setting atribut hp masing-masing\n", check: (c, o) => c.replace(/\s/g, '').includes("hero1.hp=100") && c.replace(/\s/g, '').includes("hero2.hp=80") },
+            { title: "08. OPERASI ATRIBUT", desc: "Objek <strong>kotak1</strong> memiliki atribut <strong>panjang</strong> = 5 dan <strong>lebar</strong> = 4. Print hasil perkalian (luas) dari kedua atribut tersebut.", default: "class Persegi:\n    pass\n\nkotak1 = Persegi()\nkotak1.panjang = 5\nkotak1.lebar = 4\n\n# Print hasil kali atribut panjang dan lebar\n", check: (c, o) => c.includes("kotak1.panjang") && c.includes("*") && c.includes("kotak1.lebar") && o.includes("20") },
+            { title: "09. PENGGABUNGAN STRING", desc: "Objek <strong>user</strong> memiliki atribut <strong>nama</strong> = 'Admin'. Print kalimat: <code>Akses diberikan kepada Admin</code>", default: "class Akun:\n    pass\n\nuser = Akun()\nuser.nama = 'Admin'\n\n# Print gabungan string dan atribut\n", check: (c, o) => c.includes("print(") && c.includes("user.nama") && o.includes("Akses diberikan kepada Admin") },
+            { title: "10. FINAL NODE", desc: "1. Buat class <strong>Robot</strong>.<br>2. Buat object <strong>bot1</strong>.<br>3. Beri atribut <strong>versi</strong> = 2.<br>4. Print: <code>Robot versi 2 siap</code>", default: "# Lakukan ke-4 instruksi di sini\n\n", check: (c, o) => c.includes("class Robot:") && c.replace(/\s/g, '').includes("bot1=Robot()") && c.replace(/\s/g, '').includes("bot1.versi=2") && o.includes("Robot versi 2 siap") }
+        ];
+
+        // --- CHECK LOCAL STORAGE ON LOAD ---
+        window.onload = function() {
+            // PREFIX KHUSUS UNTUK MATERI OOP PERTEMUAN 1
+            if (localStorage.getItem("oop1_active") === "true") {
+                studentName = localStorage.getItem("oop1_name");
+                studentClass = localStorage.getItem("oop1_class");
+                examEndTime = parseInt(localStorage.getItem("oop1_examEnd"));
+                currentQ = parseInt(localStorage.getItem("oop1_currentQ"));
+                score = parseInt(localStorage.getItem("oop1_score"));
+                violations = parseInt(localStorage.getItem("oop1_violations")) || 0;
+                
+                document.getElementById("violation-count").innerText = violations;
+                document.getElementById("login-screen").style.display = "none";
+                document.getElementById("loader").style.display = "flex";
+
+                initPython(true); 
+            } else if (localStorage.getItem("oop1_active") === "finished") {
+                document.getElementById("login-screen").innerHTML = "<h1 style='color:var(--cyber-blue)'>ANDA SUDAH MENYELESAIKAN LATIHAN INI.</h1><button class=\"btn-cyber\" onclick=\"window.location.href='index.html'\">KEMBALI KE HUB</button>";
+            }
+        };
+
+        function initializeNewExam() {
+            studentName = document.getElementById("inp-nama").value.trim();
+            studentClass = document.getElementById("inp-kelas").value.trim();
+            if(!studentName || !studentClass) return alert("Identitas wajib diisi.");
+
+            localStorage.setItem("oop1_active", "true");
+            localStorage.setItem("oop1_name", studentName);
+            localStorage.setItem("oop1_class", studentClass);
+            localStorage.setItem("oop1_score", "0");
+            localStorage.setItem("oop1_currentQ", "0");
+            localStorage.setItem("oop1_violations", "0");
+            
+            // 90 Menit (5400 detik)
+            examEndTime = Date.now() + (5400 * 1000);
+            localStorage.setItem("oop1_examEnd", examEndTime.toString());
+
+            document.getElementById("login-screen").style.display = "none";
+            document.getElementById("loader").style.display = "flex";
+
+            initPython(false);
+        }
+
+        async function initPython(isResume) {
+            try {
+                pyodide = await loadPyodide();
+                document.getElementById("loader").style.display = "none";
+                isExamActive = true;
+                
+                startMainTimer();
+                loadQuestion(currentQ);
+                
+                document.addEventListener('visibilitychange', handleVisibilityChange);
+                window.addEventListener('blur', handleWindowBlur);
+
+                if (isResume) {
+                    let savedLockEnd = parseInt(localStorage.getItem("oop1_lockEnd")) || 0;
+                    if (savedLockEnd > Date.now()) {
+                        lockEndTime = savedLockEnd;
+                        resumeLockdown();
+                    }
+                }
+
+            } catch (err) {
+                alert("SYSTEM FAILURE: Tidak dapat memuat compiler Python.");
+            }
+        }
+
+        // --- ANTI CHEAT LOGIC ---
+        function handleVisibilityChange() { if (document.hidden && isExamActive) applyPenalty(); }
+        function handleWindowBlur() { if (isExamActive) applyPenalty(); }
+
+        function applyPenalty() {
+            let now = Date.now();
+            if (now - lastPenaltyTime < 1000) return; 
+            lastPenaltyTime = now;
+
+            violations++;
+            localStorage.setItem("oop1_violations", violations.toString());
+            document.getElementById("violation-count").innerText = violations;
+
+            if (violations === 1) {
+                isWarningOpen = true;
+                document.getElementById("warning-screen").style.display = "flex";
+            } else {
+                if(isWarningOpen) document.getElementById("warning-screen").style.display = "none";
+                isWarningOpen = false;
+                
+                lockEndTime = Date.now() + (1200 * 1000); 
+                localStorage.setItem("oop1_lockEnd", lockEndTime.toString());
+                resumeLockdown(); 
+            }
+        }
+
+        function dismissWarning() {
+            document.getElementById("warning-screen").style.display = "none";
+            isWarningOpen = false;
+        }
+
+        function resumeLockdown() {
+            isLocked = true;
+            document.getElementById("lockdown-screen").style.display = "flex";
+            
+            document.getElementById("lockdown-screen").style.background = "rgba(200, 0, 0, 0.95)";
+            setTimeout(() => { document.getElementById("lockdown-screen").style.background = "rgba(147, 51, 234, 0.95)"; }, 150);
+
+            clearInterval(lockTimerInterval); 
+            updateLockTimerDisplay();
+
+            lockTimerInterval = setInterval(() => {
+                updateLockTimerDisplay();
+                if(Date.now() >= lockEndTime) {
+                    clearInterval(lockTimerInterval);
+                    document.getElementById("lockdown-screen").style.display = "none";
+                    isLocked = false;
+                    localStorage.removeItem("oop1_lockEnd"); 
+                }
+            }, 1000);
+        }
+
+        function updateLockTimerDisplay() {
+            let timeLeft = Math.max(0, Math.floor((lockEndTime - Date.now()) / 1000));
+            let m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+            let s = (timeLeft % 60).toString().padStart(2, '0');
+            document.getElementById('lock-timer').innerText = `${m}:${s}`;
+        }
+
+        // --- EXAM TIMER ---
+        function startMainTimer() {
+            examTimerInterval = setInterval(() => {
+                let timeLeft = Math.max(0, Math.floor((examEndTime - Date.now()) / 1000));
+                if(timeLeft <= 0) {
+                    finishExam(); 
+                } else {
+                    let m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+                    let s = (timeLeft % 60).toString().padStart(2, '0');
+                    document.getElementById('main-timer').innerText = `${m}:${s}`;
+                }
+            }, 1000);
+        }
+
+        // --- QUESTION LOGIC ---
+        function loadQuestion(idx) {
+            const q = questions[idx];
+            document.getElementById("lvl-badge").innerText = `SOAL ${String(idx+1).padStart(2,'0')}/10`;
+            document.getElementById("q-title").innerText = q.title;
+            document.getElementById("q-desc").innerHTML = q.desc;
+            document.getElementById("code-editor").value = q.default;
+            
+            document.getElementById("btn-next").style.display = "none";
+            document.getElementById("btn-run").disabled = false;
+            document.getElementById("console").innerText = "> Menunggu kode...";
+            document.getElementById("status-msg").innerText = "Ready.";
+            document.getElementById("status-msg").style.color = "var(--cyber-blue)";
+        }
+
+        async function runCode() {
+            if(isLocked || isWarningOpen) return;
+
+            const btn = document.getElementById("btn-run");
+            const term = document.getElementById("console");
+            const code = document.getElementById("code-editor").value;
+            const q = questions[currentQ];
+            
+            btn.disabled = true; term.innerText = "> Mengeksekusi script...";
+
+            let script = `
+import sys
+from io import StringIO
+sys.stdout = mystdout = StringIO()
+try:
+${code.split('\n').map(l=>'    '+l).join('\n')}
+except Exception as e:
+    print(f"Error: {e}")
+mystdout.getvalue()`;
+
+            try {
+                let out = await pyodide.runPythonAsync(script);
+                term.innerText = out;
+
+                if(out.includes("Error:")) {
+                    document.getElementById("status-msg").innerText = "[!] SYNTAX ERROR";
+                    document.getElementById("status-msg").style.color = "var(--cyber-pink)";
+                } else if(q.check(code, out)) {
+                    document.getElementById("status-msg").innerText = "[+] JAWABAN BENAR. AKSES DIBERIKAN.";
+                    document.getElementById("status-msg").style.color = "var(--cyber-green)";
+                    document.getElementById("btn-next").style.display = "inline-block";
+                    
+                    if(!q.completed) { 
+                        score += 100; // 10 soal x 100 = 1000
+                        q.completed = true; 
+                        localStorage.setItem("oop1_score", score.toString());
+                    } 
+                } else {
+                    document.getElementById("status-msg").innerText = "[-] OUTPUT ATAU LOGIKA SALAH.";
+                    document.getElementById("status-msg").style.color = "var(--cyber-yellow)";
+                }
+            } catch (e) {
+                term.innerText = "CRITICAL ERROR: " + e;
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        function nextQuestion() {
+            currentQ++;
+            if(currentQ < questions.length) {
+                localStorage.setItem("oop1_currentQ", currentQ.toString());
+                loadQuestion(currentQ);
+            } else {
+                finishExam();
+            }
+        }
+
+        // --- SUBMISSION ---
+        function finishExam() {
+            isExamActive = false;
+            clearInterval(examTimerInterval);
+            clearInterval(lockTimerInterval);
+            
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            window.removeEventListener('blur', handleWindowBlur);
+
+            document.getElementById("warning-screen").style.display = "none";
+            document.getElementById("lockdown-screen").style.display = "none";
+            
+            localStorage.setItem("oop1_active", "finished");
+
+            document.getElementById("result-screen").style.display = "flex";
+            document.getElementById("final-score").innerText = score;
+            document.getElementById("final-violations").innerText = violations;
+
+            sendDataToSheet();
+        }
+
+        function sendDataToSheet() {
+            const statusEl = document.getElementById("send-status");
+            
+            let timeUsedSeconds = Math.max(0, 5400 - Math.floor((examEndTime - Date.now()) / 1000));
+            let m = Math.floor(timeUsedSeconds / 60).toString().padStart(2, '0');
+            let s = (timeUsedSeconds % 60).toString().padStart(2, '0');
+            
+            const payload = {
+                nama: studentName + " (OOP-1)", // Ditambahkan Tag agar mudah disortir di Spreadsheet
+                kelas: studentClass,
+                skor: score,
+                durasi: `${m}:${s}`,
+                pelanggaran: violations
+            };
+
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify(payload)
+            })
+            .then(response => {
+                statusEl.innerText = "[+] DATA BERHASIL DISIMPAN KE SERVER.";
+                statusEl.style.color = "var(--cyber-green)";
+            })
+            .catch(err => {
+                statusEl.innerText = "[-] GAGAL MENYIMPAN. SCREENSHOT HALAMAN INI SEBAGAI BUKTI.";
+                statusEl.style.color = "var(--cyber-pink)";
+            });
+        }
+    </script>
+</body>
+</html>

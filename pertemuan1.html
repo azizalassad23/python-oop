@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NODE 01 // OOP FUNDAMENTALS</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=JetBrains+Mono:wght@400;700&family=Silkscreen&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+
+    <style>
+        /* =========================================
+           SOFT SYNTHWAVE PALETTE (EYE-FRIENDLY)
+           ========================================= */
+        :root {
+            --bg-dark: #13141c;        /* Biru gelap keabu-abuan (bukan hitam pekat) */
+            --bg-panel: #1e1e2f;       /* Warna panel yang lebih soft */
+            --cyber-green: #6ee7b7;    /* Soft Mint Green */
+            --cyber-blue: #7dd3fc;     /* Soft Sky Blue */
+            --cyber-yellow: #fde047;   /* Soft Pastel Yellow */
+            --cyber-pink: #f472b6;     /* Soft Pastel Pink */
+            --cyber-purple: #c084fc;   /* Soft Lilac Purple */
+            --text-main: #cbd5e1;      /* Abu-abu terang (bukan putih murni) */
+            
+            --font-ui: 'Share Tech Mono', monospace;
+            --font-code: 'JetBrains Mono', monospace;
+            --font-header: 'Silkscreen', cursive;
+        }
+
+        * { box-sizing: border-box; scroll-behavior: smooth; }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main); 
+            font-family: var(--font-ui);
+            margin: 0; padding: 0; line-height: 1.7;
+            
+            /* Tekstur background yang sangat tipis & lembut */
+            background-image: 
+                radial-gradient(rgba(110, 231, 183, 0.05) 1px, transparent 1px),
+                radial-gradient(rgba(192, 132, 252, 0.03) 1px, transparent 1px),
+                repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.15) 3px);
+            background-size: 30px 30px, 40px 40px, 100% 4px;
+            background-position: 0 0, 15px 15px, 0 0;
+            background-attachment: fixed;
+            box-shadow: inset 0 0 100px rgba(0,0,0,0.5);
+            min-height: 100vh;
+        }
+
+        /* NAVBAR */
+        nav {
+            background: rgba(19, 20, 28, 0.9); border-bottom: 2px solid var(--cyber-purple);
+            padding: 15px 30px; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 100;
+            backdrop-filter: blur(8px);
+        }
+        .nav-brand { font-family: var(--font-header); font-size: 1.5rem; color: var(--cyber-purple); margin: 0; text-shadow: 0 0 8px rgba(192,132,252,0.4); }
+        .back-btn { 
+            color: var(--text-main); text-decoration: none; border: 1px solid #475569; 
+            padding: 6px 16px; font-size: 0.9rem; transition: 0.3s; 
+            background: rgba(30,30,47,0.5); border-radius: 4px;
+        }
+        .back-btn:hover { background: var(--cyber-purple); color: #000; border-color: var(--cyber-purple); }
+
+        /* MAIN CONTAINER */
+        .container { 
+            max-width: 900px; margin: 0 auto; padding: 40px 20px; 
+            background: rgba(19, 20, 28, 0.7);
+            min-height: 100vh;
+            border-left: 1px solid rgba(192,132,252,0.1); 
+            border-right: 1px solid rgba(192,132,252,0.1);
+        }
+
+        /* TYPOGRAPHY */
+        h1 { font-family: var(--font-header); color: var(--cyber-yellow); font-size: 2.2rem; border-left: 5px solid var(--cyber-yellow); padding-left: 15px; margin-bottom: 10px; }
+        h2 { font-family: var(--font-header); color: var(--cyber-blue); font-size: 1.5rem; margin-top: 40px; border-bottom: 1px dashed #334155; padding-bottom: 10px; }
+        p { font-size: 1.1rem; }
+        strong { color: #f8fafc; }
+
+        .info-box { background: rgba(125, 211, 252, 0.05); border-left: 4px solid var(--cyber-blue); padding: 15px 20px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .warning-box { background: rgba(253, 224, 71, 0.05); border-left: 4px solid var(--cyber-yellow); padding: 15px 20px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+
+        /* =========================================
+           STATIC EXAMPLE BLOCKS
+           ========================================= */
+        .example-block {
+            background: var(--bg-panel); border: 1px solid #334155; border-radius: 6px;
+            margin: 20px 0; overflow: hidden;
+        }
+        .example-header {
+            background: #0f111a; padding: 8px 15px; font-size: 0.85rem; color: #94a3b8;
+            border-bottom: 1px solid #334155; display: flex; align-items: center; gap: 10px;
+        }
+        .example-header::before { content: "📄"; }
+        pre.code-display {
+            margin: 0; padding: 15px; overflow-x: auto; font-family: var(--font-code);
+            font-size: 15px; color: var(--text-main);
+        }
+        .syntax-comment { color: #64748b; font-style: italic; }
+        .syntax-keyword { color: var(--cyber-pink); }
+        .syntax-string { color: var(--cyber-yellow); }
+
+        /* =========================================
+           INTERACTIVE MINI-LABS
+           ========================================= */
+        .mini-lab {
+            background: #0f111a; border: 1px solid #334155; border-left: 4px solid var(--cyber-green);
+            margin: 20px 0 40px 0; border-radius: 6px; overflow: hidden; display: flex; flex-direction: column;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+        .mini-editor {
+            width: 100%; height: 220px; background: #13141c; color: var(--cyber-green);
+            border: none; padding: 15px; font-family: var(--font-code); font-size: 15px;
+            resize: vertical; outline: none; line-height: 1.5;
+        }
+        .mini-editor:focus { background: #1e1e2f; }
+        .mini-toolbar {
+            background: var(--bg-panel); padding: 10px 15px; display: flex; justify-content: space-between;
+            align-items: center; border-top: 1px solid #334155; border-bottom: 1px solid #334155;
+        }
+        .mini-btn {
+            background: transparent; color: var(--cyber-green); border: 1px solid var(--cyber-green);
+            padding: 6px 18px; font-family: var(--font-header); font-size: 0.95rem; 
+            cursor: pointer; transition: 0.2s; border-radius: 4px;
+        }
+        .mini-btn:hover { background: var(--cyber-green); color: #000; box-shadow: 0 0 10px rgba(110,231,183,0.4); }
+        .mini-console {
+            background: #000; color: #f8fafc; padding: 15px; font-family: var(--font-code);
+            font-size: 14px; min-height: 80px; white-space: pre-wrap;
+        }
+
+        /* NEXT BUTTON (LATIHAN) */
+        .next-section { 
+            text-align: center; margin-top: 60px; padding: 40px 20px; 
+            background: rgba(192, 132, 252, 0.05); border: 1px dashed var(--cyber-purple); border-radius: 8px;
+        }
+        .btn-latihan {
+            display: inline-block; background: var(--cyber-purple); color: #000;
+            border: none; padding: 15px 40px; font-family: var(--font-header); border-radius: 6px;
+            font-size: 1.3rem; text-decoration: none; transition: 0.3s; margin-top: 15px;
+        }
+        .btn-latihan:hover { background: var(--cyber-blue); transform: translateY(-3px); box-shadow: 0 5px 15px rgba(125,211,252,0.4); }
+
+        /* LOADING OVERLAY */
+        #loader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-dark); z-index: 9999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+        .loader-text { font-family: var(--font-header); color: var(--cyber-purple); font-size: 1.5rem; animation: pulse 1.5s infinite; text-align: center; padding: 20px; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 1.8rem; }
+            h2 { font-size: 1.3rem; }
+            .container { padding: 20px 15px; border: none; }
+            .btn-latihan { font-size: 1.1rem; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loader">
+        <h2 class="loader-text">INITIALIZING KERNEL...</h2>
+        <p style="color:var(--text-main); font-size: 0.9rem;">Menyiapkan Virtual Environment</p>
+    </div>
+
+    <nav>
+        <h1 class="nav-brand">CIT CLASS</h1>
+        <a href="index.html" class="back-btn"><< MENU</a>
+    </nav>
+
+    <div class="container">
+        <h1>NODE 01: CLASS & OBJECT</h1>
+        <p>Selamat datang di dimensi baru pemrograman. Mulai hari ini, kita tidak lagi menganggap kode sebagai kumpulan perintah yang berjalan dari atas ke bawah. Kita akan mulai berpikir tentang <strong>Benda (Object)</strong>.</p>
+
+        <h2>1. Apa itu OOP?</h2>
+        <p><strong>OOP (Object-Oriented Programming)</strong> adalah cara menulis program dengan membuat "objek-objek" virtual. Bayangkan Anda sedang membuat game <em>Cyberpunk</em>. Anda butuh karakter utama, musuh, mobil, dan senjata. Dalam OOP, setiap hal tersebut adalah <strong>Object</strong>.</p>
+
+        <div class="info-box">
+            <strong>💡 ANALOGI BLUEPRINT:</strong><br>
+            Pabrik mobil tidak merancang mobil satu per satu dari awal setiap kali mau diproduksi. Mereka punya 1 <strong>Gambar Desain (Blueprint)</strong>. Dari 1 desain itu, pabrik bisa mencetak ribuan <strong>Mobil Nyata (Object)</strong>.
+        </div>
+
+        <h2>2. Class vs Object</h2>
+        <p>Dalam Python, <strong>Class</strong> adalah blueprint-nya. Sedangkan <strong>Object</strong> adalah wujud nyata dari blueprint tersebut.</p>
+        
+        <div class="example-block">
+            <div class="example-header">Contoh Kode: Membuat Class dan Object</div>
+            <pre class="code-display">
+<span class="syntax-comment"># 1. Membuat Blueprint (Class) menggunakan huruf kapital di awal</span>
+<span class="syntax-keyword">class</span> Robot:
+    <span class="syntax-keyword">pass</span>  <span class="syntax-comment"># 'pass' digunakan agar class kosong tidak error</span>
+
+<span class="syntax-comment"># 2. Mencetak Wujud Nyata (Object / Instansiasi)</span>
+robot_petarung = Robot()
+
+<span class="syntax-comment"># 3. Membuktikan bahwa objek telah tercipta di memori</span>
+print(robot_petarung)</pre>
+        </div>
+
+        <p>Sekarang giliranmu! Lihat contoh di atas, lalu kerjakan tugas di terminal interaktif di bawah ini.</p>
+
+        <div class="mini-lab">
+<textarea id="editor-1" class="mini-editor" spellcheck="false">
+# HANDS-ON 1:
+# 1. Buat class bernama KarakterGame (gunakan pass di dalamnya)
+# 2. Buat sebuah object bernama player1 dari class tersebut
+# 3. Print player1 untuk membuktikan objek tersebut ada!
+
+# Ketik kodemu di bawah ini:
+
+</textarea>
+            <div class="mini-toolbar">
+                <span style="color:#64748b; font-size: 0.85rem;">TERMINAL >> HANDS-ON 01</span>
+                <button class="mini-btn" onclick="runMiniLab('editor-1', 'out-1', this)">RUN ▶</button>
+            </div>
+            <div id="out-1" class="mini-console">> Output eksekusi akan muncul di sini...</div>
+        </div>
+
+        <h2>3. Memberikan Sifat (Atribut)</h2>
+        <p>Robot kosongan tentu tidak berguna. Kita bisa menempelkan data (disebut <strong>Atribut</strong>) ke masing-masing objek yang sudah kita buat menggunakan tanda titik (<code>.</code>).</p>
+        
+        <div class="example-block">
+            <div class="example-header">Contoh Kode: Menempelkan Atribut</div>
+            <pre class="code-display">
+<span class="syntax-keyword">class</span> Robot:
+    <span class="syntax-keyword">pass</span>
+
+robot_petarung = Robot()
+
+<span class="syntax-comment"># Menempelkan atribut ke dalam objek</span>
+robot_petarung.nama = <span class="syntax-string">"V"</span>
+robot_petarung.senjata = <span class="syntax-string">"Katana"</span>
+robot_petarung.hp = 100
+
+<span class="syntax-comment"># Memanggil atribut untuk di-print</span>
+print(<span class="syntax-string">"Nama Karakter: "</span> + robot_petarung.nama)
+print(<span class="syntax-string">"Sisa HP: "</span>, robot_petarung.hp)</pre>
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ PERHATIAN:</strong><br>
+            Atribut yang ditempelkan di <code>robot_petarung</code> TIDAK akan ada di objek robot lain. Setiap objek punya catatannya sendiri secara mandiri.
+        </div>
+
+        <p>Mari kita praktikkan! Ikuti petunjuk di bawah ini untuk memberi atribut pada karaktermu.</p>
+
+        <div class="mini-lab">
+<textarea id="editor-2" class="mini-editor" spellcheck="false">
+# HANDS-ON 2:
+class KarakterGame:
+    pass
+
+player1 = KarakterGame()
+
+# TUGASMU:
+# 1. Tambahkan atribut 'username' ke player1 (isi dengan namamu)
+# 2. Tambahkan atribut 'level' ke player1 (isi dengan angka bebas)
+# 3. Print kalimat gabungan. Contoh: "Player Budi telah mencapai Level 10"
+
+# Ketik kodemu di bawah ini:
+
+</textarea>
+            <div class="mini-toolbar">
+                <span style="color:#64748b; font-size: 0.85rem;">TERMINAL >> HANDS-ON 02</span>
+                <button class="mini-btn" onclick="runMiniLab('editor-2', 'out-2', this)">RUN ▶</button>
+            </div>
+            <div id="out-2" class="mini-console">> Output eksekusi akan muncul di sini...</div>
+        </div>
+
+
+        <div class="next-section">
+            <h2 style="margin-top:0; border:none; color:var(--cyber-purple);">TEORI SELESAI. WAKTUNYA UJIAN.</h2>
+            <p style="color:#94a3b8; font-size:1rem;">Jika kamu sudah bisa menyelesaikan Hands-On di atas, kamu sudah siap. Akses ruang latihan untuk dinilai.</p>
+            <a href="latihan1.html" class="btn-latihan">MULAI UJIAN NODE 01</a>
+        </div>
+
+    </div>
+
+    <script>
+        let pyodide;
+        const loader = document.getElementById("loader");
+
+        // Load Python
+        async function main() {
+            try {
+                pyodide = await loadPyodide();
+                loader.style.display = "none";
+            } catch (err) {
+                loader.innerHTML = "<h2 style='color:var(--cyber-pink); text-align:center;'>ERROR: KONEKSI MAINFRAME GAGAL.<br>REFRESH HALAMAN.</h2>";
+            }
+        }
+        main();
+
+        // Universal Run Code Function for Mini Labs
+        async function runMiniLab(editorId, outputId, btnElement) {
+            const code = document.getElementById(editorId).value;
+            const outConsole = document.getElementById(outputId);
+            
+            btnElement.innerText = "EXECUTING...";
+            btnElement.disabled = true;
+            outConsole.innerHTML = "> Executing...<br>";
+
+            let script = `
+import sys
+from io import StringIO
+sys.stdout = mystdout = StringIO()
+
+try:
+${code.split('\n').map(l => '    ' + l).join('\n')}
+except Exception as e:
+    print(f"ERROR: {e}")
+
+mystdout.getvalue()
+            `;
+
+            try {
+                let output = await pyodide.runPythonAsync(script);
+                if (output.trim() === "") {
+                    outConsole.innerHTML = "> [Sistem]: Kode berhasil dijalankan tanpa error, tetapi tidak ada instruksi print().";
+                } else {
+                    outConsole.innerHTML = output.replace(/\n/g, '<br>');
+                }
+                
+                // Highlight error in pink if any
+                if(output.includes("ERROR:")) {
+                    outConsole.style.color = "var(--cyber-pink)";
+                } else {
+                    outConsole.style.color = "var(--text-main)";
+                }
+
+            } catch (err) {
+                outConsole.innerHTML = "<span style='color:var(--cyber-pink);'>CRITICAL ERROR: " + err + "</span>";
+            } finally {
+                btnElement.innerText = "RUN ▶";
+                btnElement.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
