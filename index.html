@@ -8,12 +8,19 @@
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=JetBrains+Mono:wght@400;700&family=Silkscreen&display=swap" rel="stylesheet">
 
     <style>
+        /* =========================================
+           SOFT SYNTHWAVE PALETTE (EYE-FRIENDLY)
+           ========================================= */
         :root {
-            --bg-dark: #090a0f;
-            --cyber-yellow: #fcee0a;
-            --cyber-blue: #00f0ff;
-            --cyber-red: #ff003c;
-            --cyber-green: #00ff66;
+            --bg-dark: #13141c;
+            --bg-panel: #1e1e2f;
+            --cyber-green: #6ee7b7;
+            --cyber-blue: #7dd3fc;
+            --cyber-yellow: #fde047;
+            --cyber-pink: #f472b6;
+            --cyber-purple: #c084fc;
+            --text-main: #cbd5e1;
+            
             --font-ui: 'Share Tech Mono', monospace;
             --font-header: 'Silkscreen', cursive;
         }
@@ -22,19 +29,25 @@
 
         body {
             background-color: var(--bg-dark);
-            color: #e0e0e0; font-family: var(--font-ui);
+            color: var(--text-main); font-family: var(--font-ui);
             margin: 0; padding: 0; min-height: 100vh;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            background-image: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 240, 255, 0.05) 3px);
+            
+            /* Tekstur background Soft Netrunner */
+            background-image: 
+                radial-gradient(rgba(192, 132, 252, 0.05) 1px, transparent 1px),
+                repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.15) 3px);
+            background-size: 30px 30px, 100% 4px;
+            box-shadow: inset 0 0 150px rgba(0,0,0,0.6);
         }
 
         header {
-            text-align: center; margin-bottom: 50px;
+            text-align: center; margin-bottom: 60px; padding-top: 40px;
         }
 
         h1 { 
             font-family: var(--font-header); font-size: 3.5rem; margin: 0; 
-            color: var(--cyber-yellow); text-shadow: 4px 4px 0px var(--cyber-red);
+            color: var(--cyber-purple); text-shadow: 0 0 15px rgba(192,132,252,0.4);
         }
 
         .subtitle {
@@ -45,62 +58,71 @@
         /* CARD CONTAINER */
         .mission-grid {
             display: flex; gap: 30px; flex-wrap: wrap; justify-content: center;
-            max-width: 1200px; padding: 20px;
+            max-width: 1200px; padding: 20px; margin-bottom: 40px;
         }
 
-        /* MISSION CARD */
+        /* MISSION CARD BASE */
         .card {
-            background: rgba(10, 10, 15, 0.9);
-            border: 2px solid #333;
+            background: rgba(30, 30, 47, 0.8);
+            border: 1px solid #334155; border-radius: 8px;
             width: 320px; padding: 30px 20px;
             text-align: center; position: relative;
             transition: all 0.3s ease; text-decoration: none;
             display: flex; flex-direction: column;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            overflow: hidden;
         }
 
         .card::before {
             content: ""; position: absolute; top: 0; left: 0;
-            width: 100%; height: 5px; background: #333; transition: 0.3s;
+            width: 100%; height: 6px; background: #334155; transition: 0.3s;
         }
 
-        /* CARD HOVER EFFECTS */
-        .card:hover { transform: translateY(-10px); background: #111; }
+        .card:hover { transform: translateY(-10px); background: #282a36; }
         
-        /* THEME: PEMULA */
-        .card.pemula:hover { border-color: var(--cyber-green); box-shadow: 0 0 25px rgba(0, 255, 102, 0.2); }
-        .card.pemula:hover::before { background: var(--cyber-green); }
-        .card.pemula:hover h2 { color: var(--cyber-green); text-shadow: 2px 2px 0px #000; }
+        /* THEME: NODE 01 (GREEN) */
+        .card.node-01:hover { border-color: var(--cyber-green); box-shadow: 0 15px 30px rgba(110,231,183,0.15); }
+        .card.node-01:hover::before { background: var(--cyber-green); }
+        .card.node-01:hover h2 { color: var(--cyber-green); }
+        .card.node-01:hover .btn-enter { background: var(--cyber-green); color: #000; border-color: var(--cyber-green); }
+
+        /* THEME: NODE 02 (BLUE) */
+        .card.node-02:hover { border-color: var(--cyber-blue); box-shadow: 0 15px 30px rgba(125,211,252,0.15); }
+        .card.node-02:hover::before { background: var(--cyber-blue); }
+        .card.node-02:hover h2 { color: var(--cyber-blue); }
+        .card.node-02:hover .btn-enter { background: var(--cyber-blue); color: #000; border-color: var(--cyber-blue); }
+
+        /* THEME: LOCKED (GRAY) */
+        .card.locked { opacity: 0.6; cursor: not-allowed; }
+        .card.locked:hover { transform: none; background: rgba(30, 30, 47, 0.8); }
 
         /* TEXT INSIDE CARDS */
         h2 {
-            font-family: var(--font-header); font-size: 1.8rem;
-            color: #fff; margin-top: 10px; transition: 0.3s;
+            font-family: var(--font-header); font-size: 1.5rem;
+            color: #f8fafc; margin-top: 15px; transition: 0.3s;
         }
 
-        .level-tag {
-            font-size: 0.9rem; color: #888; letter-spacing: 2px;
-        }
+        .level-tag { font-size: 0.9rem; color: #94a3b8; letter-spacing: 2px; }
 
-        p { color: #aaa; font-size: 1rem; line-height: 1.5; flex-grow: 1; }
+        p { color: var(--text-main); font-size: 1rem; line-height: 1.6; flex-grow: 1; margin-bottom: 25px; }
 
         .btn-enter {
-            display: inline-block; margin-top: 20px; padding: 12px 20px;
+            display: inline-block; padding: 12px 20px; border-radius: 4px;
             font-family: var(--font-header); font-size: 1rem;
-            background: transparent; color: #fff; border: 1px solid #555;
+            background: transparent; color: #f8fafc; border: 1px solid #475569;
             transition: 0.3s;
         }
 
-        .card:hover .btn-enter { background: #fff; color: #000; border-color: #fff; }
-
         /* FOOTER */
         footer {
-            margin-top: 60px; color: #555; font-size: 0.9rem; letter-spacing: 2px;
-            text-align: center;
+            margin-top: auto; padding-bottom: 30px; color: #64748b; font-size: 0.9rem; 
+            letter-spacing: 2px; text-align: center;
         }
         
         @media (max-width: 800px) {
-            h1 { font-size: 2.5rem; }
+            h1 { font-size: 2.2rem; }
             .mission-grid { flex-direction: column; align-items: center; }
+            .card { width: 100%; max-width: 350px; }
         }
     </style>
 </head>
@@ -108,22 +130,36 @@
 
     <header>
         <h1>SYSTEM_LOGIN</h1>
-        <span class="subtitle">SELECT YOUR EVALUATION PROTOCOL</span>
+        <span class="subtitle">OOP MODULES // SELECT YOUR MATERIAL</span>
     </header>
 
     <div class="mission-grid">
         
-        <a href="pertemuan1.html" class="card pemula">
-            <div class="level-tag">// TIER 01</div>
-            <h2>FUNDAMENTAL 1</h2>
-            <p>Pengenalan Class & Object</p>
+        <a href="pertemuan1.html" class="card node-01">
+            <div class="level-tag">// NODE 01</div>
+            <h2>CLASS & OBJECT</h2>
+            <p>Memasuki dimensi objek. Pelajari cara membuat Blueprint (Class), mencetak wujud nyata (Object), dan memberi data (Atribut).</p>
             <div class="btn-enter">>>> INITIATE</div>
         </a>
 
+        <a href="pertemuan2.html" class="card node-02">
+            <div class="level-tag">// NODE 02</div>
+            <h2>METHOD & SELF</h2>
+            <p>Meniupkan kehidupan pada objek. Pelajari cara mengajari objek melakukan aksi (Method) dan mengingat identitasnya (Self).</p>
+            <div class="btn-enter">>>> INITIATE</div>
+        </a>
+
+        <div class="card locked">
+            <div class="level-tag" style="color:var(--cyber-pink);">// NODE 03 [ LOCKED ]</div>
+            <h2 style="color:#64748b;">CONSTRUCTOR</h2>
+            <p>Sihir instansiasi otomatis. Materi ini dilindungi enkripsi tingkat tinggi. Selesaikan Node 02 untuk mendapatkan akses.</p>
+            <div class="btn-enter" style="color:#475569; border-color:#334155;">ACCESS DENIED</div>
         </div>
 
+    </div>
+
     <footer>
-        M. AZIZ AL ASSAD, S.T. , GR. // 2026
+        M. AZIZ AL ASSAD, S.T., GR. // 2026
     </footer>
 
 </body>
