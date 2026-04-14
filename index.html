@@ -9,17 +9,19 @@
 
     <style>
         /* =========================================
-           SOFT SYNTHWAVE PALETTE (EYE-FRIENDLY)
+           SOFT NEON TECHNICOLOR PALETTE (RED-YELLOW-BLUE)
            ========================================= */
         :root {
-            --bg-dark: #13141c;
-            --bg-panel: #1e1e2f;
-            --cyber-green: #6ee7b7;
-            --cyber-blue: #7dd3fc;
-            --cyber-yellow: #fde047;
-            --cyber-pink: #f472b6;
-            --cyber-purple: #c084fc;
-            --text-main: #cbd5e1;
+            --bg-dark: #13141c;        /* Biru gelap keabu-abuan (sebagai kanvas) */
+            --bg-panel: #1e1e2f;       /* Warna panel yang lebih soft */
+            --text-main: #cbd5e1;      /* Abu-abu terang (untuk teks biasa) */
+            
+            /* Warna Neon Pastel (Soft Neon) */
+            --neon-red: #ff758f;       /* Merah Pastel Vibrant */
+            --neon-yellow: #fde047;    /* Kuning Pastel Vibrant */
+            --neon-blue: #7dd3fc;      /* Biru Pastel Vibrant */
+            --cyber-pink: #f472b6;     /* Aksen Pink (dari tema lama untuk transisi) */
+            --cyber-purple: #c084fc;   /* Aksen Ungu (untuk background texture) */
             
             --font-ui: 'Share Tech Mono', monospace;
             --font-header: 'Silkscreen', cursive;
@@ -33,11 +35,16 @@
             margin: 0; padding: 0; min-height: 100vh;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             
-            /* Tekstur background Soft Netrunner */
+            /* Tekstur background Soft Netrunner dengan hint warna warni */
             background-image: 
-                radial-gradient(rgba(192, 132, 252, 0.05) 1px, transparent 1px),
+                radial-gradient(rgba(255, 117, 143, 0.05) 1px, transparent 1px),
+                radial-gradient(rgba(253, 224, 71, 0.03) 1px, transparent 1px),
                 repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.15) 3px);
-            background-size: 30px 30px, 100% 4px;
+            background-size: 30px 30px, 40px 40px, 100% 4px;
+            background-position: 0 0, 15px 15px, 0 0;
+            background-attachment: fixed;
+            
+            /* Efek Vignette (Pinggiran layar lebih gelap) */
             box-shadow: inset 0 0 150px rgba(0,0,0,0.6);
         }
 
@@ -47,11 +54,12 @@
 
         h1 { 
             font-family: var(--font-header); font-size: 3.5rem; margin: 0; 
-            color: var(--cyber-purple); text-shadow: 0 0 15px rgba(192,132,252,0.4);
+            /* Header teks murni, shadow yang berwarna warni */
+            color: #fff; text-shadow: 0 0 10px rgba(125,211,252,0.4), 0 0 20px rgba(253,224,71,0.2), 0 0 30px rgba(255,117,143,0.2);
         }
 
         .subtitle {
-            color: var(--cyber-blue); font-size: 1.2rem; letter-spacing: 3px;
+            color: #888; font-size: 1.2rem; letter-spacing: 3px;
             margin-top: 10px; display: block;
         }
 
@@ -80,20 +88,26 @@
 
         .card:hover { transform: translateY(-10px); background: #282a36; }
         
-        /* THEME: NODE 01 (GREEN) */
-        .card.node-01:hover { border-color: var(--cyber-green); box-shadow: 0 15px 30px rgba(110,231,183,0.15); }
-        .card.node-01:hover::before { background: var(--cyber-green); }
-        .card.node-01:hover h2 { color: var(--cyber-green); }
-        .card.node-01:hover .btn-enter { background: var(--cyber-green); color: #000; border-color: var(--cyber-green); }
+        /* THEME: NODE 01 (PEMULA) -> MERAH */
+        .card.node-pemula:hover { border-color: var(--neon-red); box-shadow: 0 15px 30px rgba(255,117,143,0.15); }
+        .card.node-pemula:hover::before { background: var(--neon-red); }
+        .card.node-pemula:hover h2 { color: var(--neon-red); }
+        .card.node-pemula:hover .btn-enter { background: var(--neon-red); color: #000; border-color: var(--neon-red); }
 
-        /* THEME: NODE 02 (BLUE) */
-        .card.node-02:hover { border-color: var(--cyber-blue); box-shadow: 0 15px 30px rgba(125,211,252,0.15); }
-        .card.node-02:hover::before { background: var(--cyber-blue); }
-        .card.node-02:hover h2 { color: var(--cyber-blue); }
-        .card.node-02:hover .btn-enter { background: var(--cyber-blue); color: #000; border-color: var(--cyber-blue); }
+        /* THEME: NODE 02 (OOP 1) -> KUNING */
+        .card.node-oop-1:hover { border-color: var(--neon-yellow); box-shadow: 0 15px 30px rgba(253,224,71,0.15); }
+        .card.node-oop-1:hover::before { background: var(--neon-yellow); }
+        .card.node-oop-1:hover h2 { color: var(--neon-yellow); }
+        .card.node-oop-1:hover .btn-enter { background: var(--neon-yellow); color: #000; border-color: var(--neon-yellow); }
 
-        /* THEME: LOCKED (GRAY) */
-        .card.locked { opacity: 0.6; cursor: not-allowed; }
+        /* THEME: NODE 03 (OOP 2) -> BIRU */
+        .card.node-oop-2:hover { border-color: var(--neon-blue); box-shadow: 0 15px 30px rgba(125,211,252,0.15); }
+        .card.node-oop-2:hover::before { background: var(--neon-blue); }
+        .card.node-oop-2:hover h2 { color: var(--neon-blue); }
+        .card.node-oop-2:hover .btn-enter { background: var(--neon-blue); color: #000; border-color: var(--neon-blue); }
+
+        /* LOCKED CARD TEASER -> PINK ACCENT */
+        .card.locked { opacity: 0.6; cursor: not-allowed; border-color: #333; }
         .card.locked:hover { transform: none; background: rgba(30, 30, 47, 0.8); }
 
         /* TEXT INSIDE CARDS */
@@ -135,24 +149,31 @@
 
     <div class="mission-grid">
         
-        <a href="pertemuan1.html" class="card node-01">
-            <div class="level-tag">// NODE 01</div>
-            <h2>CLASS & OBJECT</h2>
-            <p>Memasuki dimensi objek. Pelajari cara membuat Blueprint (Class), mencetak wujud nyata (Object), dan memberi data (Atribut).</p>
+        <a href="pertemuan1.html" class="card node-pemula">
+            <div class="level-tag">// TIER 01</div>
+            <h2>PEMULA</h2>
+            <p>Misi dasar. Menguji pemahaman variabel, operasi matematika dasar, manipulasi list sederhana, dan loop dasar.</p>
             <div class="btn-enter">>>> INITIATE</div>
         </a>
 
-        <a href="pertemuan2.html" class="card node-02">
-            <div class="level-tag">// NODE 02</div>
-            <h2>METHOD & SELF</h2>
-            <p>Meniupkan kehidupan pada objek. Pelajari cara mengajari objek melakukan aksi (Method) dan mengingat identitasnya (Self).</p>
+        <a href="latihan1.html" class="card node-oop-1">
+            <div class="level-tag">// TIER 02</div>
+            <h2>OOP // NODE 01</h2>
+            <p>Mulai berpikir tentang Benda (Object). Pelajari cara membuat Blueprint (Class), mencetak wujud nyata (Object), dan memberi data (Atribut).</p>
+            <div class="btn-enter">>>> ACCESS UJIAN</div>
+        </a>
+
+        <a href="pertemuan2.html" class="card node-oop-2">
+            <div class="level-tag">// TIER 03</div>
+            <h2>OOP // NODE 02</h2>
+            <p>Meniupkan kehidupan ke dalam objek. Pelajari cara mengajari objek melakukan aksi (Method) dan mengingat identitasnya sendiri (Self).</p>
             <div class="btn-enter">>>> INITIATE</div>
         </a>
 
         <div class="card locked">
-            <div class="level-tag" style="color:var(--cyber-pink);">// NODE 03 [ LOCKED ]</div>
+            <div class="level-tag" style="color:var(--cyber-pink);">// TIER 04 [ LOCKED ]</div>
             <h2 style="color:#64748b;">CONSTRUCTOR</h2>
-            <p>Sihir instansiasi otomatis. Materi ini dilindungi enkripsi tingkat tinggi. Selesaikan Node 02 untuk mendapatkan akses.</p>
+            <p>Materi ini dilindungi enkripsi tingkat tinggi. Selesaikan Tier 03 untuk mendapatkan akses ke Node 03.</p>
             <div class="btn-enter" style="color:#475569; border-color:#334155;">ACCESS DENIED</div>
         </div>
 
