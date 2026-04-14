@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NODE 02 // METHOD & SELF</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=JetBrains+Mono:wght@400;700&family=Silkscreen&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+
+    <style>
+        /* =========================================
+           SOFT SYNTHWAVE PALETTE
+           ========================================= */
+        :root {
+            --bg-dark: #13141c; --bg-panel: #1e1e2f;
+            --cyber-green: #6ee7b7; --cyber-blue: #7dd3fc;
+            --cyber-yellow: #fde047; --cyber-pink: #f472b6;
+            --cyber-purple: #c084fc; --text-main: #cbd5e1;
+            
+            --font-ui: 'Share Tech Mono', monospace;
+            --font-code: 'JetBrains Mono', monospace;
+            --font-header: 'Silkscreen', cursive;
+        }
+
+        * { box-sizing: border-box; scroll-behavior: smooth; }
+
+        body {
+            background-color: var(--bg-dark); color: var(--text-main); 
+            font-family: var(--font-ui); margin: 0; padding: 0; line-height: 1.7;
+            background-image: 
+                radial-gradient(rgba(110, 231, 183, 0.05) 1px, transparent 1px),
+                repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.15) 3px);
+            background-size: 30px 30px, 100% 4px; box-shadow: inset 0 0 100px rgba(0,0,0,0.5);
+            min-height: 100vh;
+        }
+
+        /* NAVBAR */
+        nav {
+            background: rgba(19, 20, 28, 0.9); border-bottom: 2px solid var(--cyber-purple);
+            padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; 
+            position: sticky; top: 0; z-index: 100; backdrop-filter: blur(8px);
+        }
+        .nav-brand { font-family: var(--font-header); font-size: 1.5rem; color: var(--cyber-purple); margin: 0; }
+        .back-btn { color: var(--text-main); text-decoration: none; border: 1px solid #475569; padding: 6px 16px; font-size: 0.9rem; transition: 0.3s; background: rgba(30,30,47,0.5); border-radius: 4px; }
+        .back-btn:hover { background: var(--cyber-purple); color: #000; border-color: var(--cyber-purple); }
+
+        /* MAIN CONTAINER */
+        .container { 
+            max-width: 900px; margin: 0 auto; padding: 40px 20px; 
+            background: rgba(19, 20, 28, 0.85); min-height: 100vh;
+            border-left: 1px solid rgba(192,132,252,0.1); border-right: 1px solid rgba(192,132,252,0.1);
+        }
+
+        h1 { font-family: var(--font-header); color: var(--cyber-yellow); font-size: 2.2rem; border-left: 5px solid var(--cyber-yellow); padding-left: 15px; margin-bottom: 10px; }
+        h2 { font-family: var(--font-header); color: var(--cyber-blue); font-size: 1.5rem; margin-top: 50px; border-bottom: 1px dashed #334155; padding-bottom: 10px; }
+        h3 { color: var(--cyber-pink); margin-top: 25px; font-size: 1.2rem; }
+        p { font-size: 1.1rem; }
+        strong { color: #f8fafc; }
+        code { background: #0f111a; padding: 2px 6px; border-radius: 4px; color: var(--cyber-green); }
+
+        .info-box { background: rgba(125, 211, 252, 0.05); border-left: 4px solid var(--cyber-blue); padding: 15px 20px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        
+        /* STATIC EXAMPLE BLOCKS */
+        .example-block { background: var(--bg-panel); border: 1px solid #334155; border-radius: 6px; margin: 20px 0; overflow: hidden; }
+        .example-header { background: #0f111a; padding: 8px 15px; font-size: 0.85rem; color: #94a3b8; border-bottom: 1px solid #334155; display: flex; align-items: center; gap: 10px; }
+        pre.code-display { margin: 0; padding: 15px; overflow-x: auto; font-family: var(--font-code); font-size: 15px; color: var(--text-main); }
+        .syntax-comment { color: #64748b; font-style: italic; }
+        .syntax-keyword { color: var(--cyber-pink); }
+        .syntax-string { color: var(--cyber-yellow); }
+
+        /* INTERACTIVE MINI-LABS */
+        .mini-lab { background: #0f111a; border: 1px solid #334155; border-left: 4px solid var(--cyber-green); margin: 20px 0 40px 0; border-radius: 6px; overflow: hidden; display: flex; flex-direction: column; }
+        .mini-editor { width: 100%; height: 220px; background: #13141c; color: var(--cyber-green); border: none; padding: 15px; font-family: var(--font-code); font-size: 15px; resize: vertical; outline: none; line-height: 1.5; }
+        .mini-editor:focus { background: #1e1e2f; }
+        .mini-toolbar { background: var(--bg-panel); padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #334155; border-bottom: 1px solid #334155; }
+        .mini-btn { background: transparent; color: var(--cyber-green); border: 1px solid var(--cyber-green); padding: 6px 18px; font-family: var(--font-header); font-size: 0.95rem; cursor: pointer; transition: 0.2s; border-radius: 4px; }
+        .mini-btn:hover { background: var(--cyber-green); color: #000; box-shadow: 0 0 10px rgba(110,231,183,0.4); }
+        .mini-console { background: #000; color: #f8fafc; padding: 15px; font-family: var(--font-code); font-size: 14px; min-height: 80px; white-space: pre-wrap; }
+
+        /* NEXT BUTTON */
+        .next-section { text-align: center; margin-top: 60px; padding: 40px 20px; background: rgba(192, 132, 252, 0.05); border: 1px dashed var(--cyber-purple); border-radius: 8px; }
+        .btn-latihan { display: inline-block; background: var(--cyber-purple); color: #000; border: none; padding: 15px 40px; font-family: var(--font-header); border-radius: 6px; font-size: 1.3rem; text-decoration: none; transition: 0.3s; margin-top: 15px; }
+        .btn-latihan:hover { background: var(--cyber-blue); transform: translateY(-3px); box-shadow: 0 5px 15px rgba(125,211,252,0.4); }
+
+        #loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-dark); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .loader-text { font-family: var(--font-header); color: var(--cyber-purple); font-size: 1.5rem; animation: pulse 1.5s infinite; text-align: center; padding: 20px; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+
+        @media (max-width: 768px) { h1 { font-size: 1.8rem; } h2 { font-size: 1.3rem; } .container { padding: 20px 15px; border: none; } .btn-latihan { font-size: 1.1rem; width: 100%; } }
+    </style>
+</head>
+<body>
+
+    <div id="loader">
+        <h2 class="loader-text">INITIALIZING KERNEL...</h2>
+        <p style="color:var(--text-main); font-size: 0.9rem;">Membangun Dimensi Objek</p>
+    </div>
+
+    <nav>
+        <h1 class="nav-brand">NCART_ACADEMY</h1>
+        <a href="index.html" class="back-btn"><< KEMBALI</a>
+    </nav>
+
+    <div class="container">
+        <h1>NODE 02: METHOD & SELF</h1>
+        <p>Di pertemuan sebelumnya, objek kita hanyalah "patung" diam yang menyimpan data. Hari ini, kita akan mengajari mereka untuk <strong>melakukan suatu aksi (Method)</strong> dan <strong>mengingat identitas mereka sendiri (Self)</strong>.</p>
+
+        <div class="info-box">
+            <strong>💡 KONSEP KUNCI:</strong><br>
+            <ul>
+                <li><strong>Method</strong> adalah fungsi (<code>def</code>) yang ada di dalam sebuah Class.</li>
+                <li><strong>Self</strong> adalah kata ajaib yang berarti "Diriku Sendiri". Ini membuat setiap objek tahu data mana yang harus mereka proses tanpa tertukar dengan objek lain.</li>
+            </ul>
+        </div>
+
+        <h2>PILAR 1: Method Dasar & Memanggil Method</h2>
+        <p>Cara membuat Method sama persis dengan membuat fungsi biasa, hanya saja ia <strong>wajib</strong> memiliki parameter <code>self</code> di dalam kurungnya.</p>
+
+        <div class="example-block">
+            <div class="example-header">📄 Contoh: Method Sederhana</div>
+            <pre class="code-display">
+<span class="syntax-keyword">class</span> Mesin:
+    <span class="syntax-comment"># 1. Membuat Method (Wajib tulis self)</span>
+    <span class="syntax-keyword">def</span> nyalakan(<span class="syntax-keyword">self</span>):
+        print(<span class="syntax-string">"Mesin menyala. Ngeng!"</span>)
+
+<span class="syntax-comment"># 2. Membuat Objek</span>
+motor = Mesin()
+
+<span class="syntax-comment"># 3. Memanggil Method (Kurungnya dibiarkan kosong!)</span>
+motor.nyalakan()</pre>
+        </div>
+
+        <div class="mini-lab">
+<textarea id="editor-1" class="mini-editor" spellcheck="false">
+# HANDS-ON 1:
+class Robot:
+    # Buat method 'aktifkan' di bawah ini:
+    
+    
+bot1 = Robot()
+# Panggil method 'aktifkan' dari bot1 di bawah ini:
+
+</textarea>
+            <div class="mini-toolbar">
+                <span style="color:#64748b; font-size: 0.85rem;">TERMINAL >> HANDS-ON 01</span>
+                <button class="mini-btn" onclick="runMiniLab('editor-1', 'out-1', this)">RUN ▶</button>
+            </div>
+            <div id="out-1" class="mini-console">> ...</div>
+        </div>
+
+        <h2>PILAR 2: Berkomunikasi dengan <code>self</code></h2>
+        <p>Fungsi utama dari <code>self</code> adalah agar Method bisa <strong>membaca</strong> atau <strong>menyimpan</strong> atribut miliknya sendiri. Kita juga bisa memasukkan argumen (input) dari luar ke dalam method.</p>
+
+        <h3>A. Menerima Input dari Luar (Set Atribut)</h3>
+        <div class="example-block">
+            <div class="example-header">📄 Contoh: Menyimpan Data via Method</div>
+            <pre class="code-display">
+<span class="syntax-keyword">class</span> Player:
+    <span class="syntax-comment"># Method ini menerima data 'input_x' dan 'input_y' dari luar</span>
+    <span class="syntax-keyword">def</span> set_posisi(<span class="syntax-keyword">self</span>, input_x, input_y):
+        <span class="syntax-keyword">self</span>.x = input_x  <span class="syntax-comment"># Simpan data ke dalam diri sendiri</span>
+        <span class="syntax-keyword">self</span>.y = input_y
+
+p1 = Player()
+p1.set_posisi(10, 50)  <span class="syntax-comment"># Angka 10 masuk ke input_x, 50 ke input_y</span>
+print(<span class="syntax-string">"Posisi X:"</span>, p1.x)</pre>
+        </div>
+
+        <h3>B. Membaca Atribut Sendiri (Akses Self)</h3>
+        <div class="example-block">
+            <div class="example-header">📄 Contoh: Membaca Data Internal</div>
+            <pre class="code-display">
+<span class="syntax-keyword">class</span> Kucing:
+    <span class="syntax-keyword">def</span> sapa(<span class="syntax-keyword">self</span>):
+        <span class="syntax-comment"># Menggunakan self.nama untuk membaca atributnya</span>
+        print(<span class="syntax-string">"Meow, namaku adalah "</span> + <span class="syntax-keyword">self</span>.nama)
+
+kucing1 = Kucing()
+kucing1.nama = <span class="syntax-string">"Oren"</span>
+kucing1.sapa()  <span class="syntax-comment"># Output: Meow, namaku adalah Oren</span></pre>
+        </div>
+
+        <div class="mini-lab">
+<textarea id="editor-2" class="mini-editor" spellcheck="false" style="height: 250px;">
+# HANDS-ON 2:
+class Akun:
+    # Buat method set_nama(self, nama_baru)
+    # yang gunanya mengisi atribut self.nama = nama_baru
+    
+    
+    # Buat method panggil(self)
+    # yang mem-print teks: "Selamat datang " + self.nama
+    
+
+user1 = Akun()
+# Panggil set_nama dan panggil() di sini
+</textarea>
+            <div class="mini-toolbar">
+                <span style="color:#64748b; font-size: 0.85rem;">TERMINAL >> HANDS-ON 02</span>
+                <button class="mini-btn" onclick="runMiniLab('editor-2', 'out-2', this)">RUN ▶</button>
+            </div>
+            <div id="out-2" class="mini-console">> ...</div>
+        </div>
+
+        <h2>PILAR 3: Manipulasi Matematika & Logika (If/Else)</h2>
+        <p>Karena Atribut pada dasarnya adalah variabel, kita bisa menggunakan operasi matematika (+, -, *) atau logika (<code>if-else</code>) di dalam Method.</p>
+
+        <div class="example-block">
+            <div class="example-header">📄 Contoh: Matematika & Logika Atribut</div>
+            <pre class="code-display">
+<span class="syntax-keyword">class</span> Karakter:
+    <span class="syntax-comment"># 1. Memanipulasi Matematika (Menambah Atribut)</span>
+    <span class="syntax-keyword">def</span> latihan(<span class="syntax-keyword">self</span>):
+        <span class="syntax-keyword">self</span>.level += 1  <span class="syntax-comment"># Sama dengan: self.level = self.level + 1</span>
+        print(<span class="syntax-string">"Level Naik!"</span>)
+
+    <span class="syntax-comment"># 2. Menggunakan Logika If-Else berdasarkan Atribut internal</span>
+    <span class="syntax-keyword">def</span> cek_hidup(<span class="syntax-keyword">self</span>):
+        <span class="syntax-keyword">if</span> <span class="syntax-keyword">self</span>.hp > 0:
+            print(<span class="syntax-string">"Karakter masih hidup."</span>)
+        <span class="syntax-keyword">else</span>:
+            print(<span class="syntax-string">"Karakter mati."</span>)
+
+hero = Karakter()
+hero.level = 5
+hero.hp = 0
+
+hero.latihan()    <span class="syntax-comment"># Level akan menjadi 6</span>
+hero.cek_hidup()  <span class="syntax-comment"># Akan mencetak "Karakter mati" karena hp tidak lebih dari 0</span></pre>
+        </div>
+
+        <div class="mini-lab">
+<textarea id="editor-3" class="mini-editor" spellcheck="false" style="height: 250px;">
+# HANDS-ON 3:
+class Kotak:
+    def hitung_luas(self):
+        # 1. Print hasil dari self.p dikali self.l
+        pass
+        
+    def tambah_poin(self):
+        # 2. Tambahkan self.poin sebanyak 10
+        pass
+
+# Uji cobamu di sini:
+
+</textarea>
+            <div class="mini-toolbar">
+                <span style="color:#64748b; font-size: 0.85rem;">TERMINAL >> HANDS-ON 03</span>
+                <button class="mini-btn" onclick="runMiniLab('editor-3', 'out-3', this)">RUN ▶</button>
+            </div>
+            <div id="out-3" class="mini-console">> ...</div>
+        </div>
+
+        <div class="next-section">
+            <h2 style="margin-top:0; border:none; color:var(--cyber-purple);">LOGIKA TERKALIBRASI. WAKTUNYA UJIAN.</h2>
+            <p style="color:#94a3b8; font-size:1rem;">Ketiga pilar di atas adalah kunci utama untuk menyelesaikan Latihan 2. Silakan akses ruang evaluasi.</p>
+            <a href="latihan2.html" class="btn-latihan">MULAI UJIAN NODE 02</a>
+        </div>
+
+    </div>
+
+    <script>
+        let pyodide;
+        const loader = document.getElementById("loader");
+
+        async function main() {
+            try { pyodide = await loadPyodide(); loader.style.display = "none"; } 
+            catch (err) { loader.innerHTML = "<h2 style='color:var(--cyber-pink); text-align:center;'>ERROR: SYSTEM FAILURE.<br>REFRESH HALAMAN.</h2>"; }
+        }
+        main();
+
+        async function runMiniLab(editorId, outputId, btnElement) {
+            const code = document.getElementById(editorId).value;
+            const outConsole = document.getElementById(outputId);
+            
+            btnElement.innerText = "EXECUTING..."; btnElement.disabled = true;
+            outConsole.innerHTML = "> Executing...<br>";
+
+            let script = `
+import sys\nfrom io import StringIO\nsys.stdout = mystdout = StringIO()
+try:\n${code.split('\n').map(l => '    ' + l).join('\n')}
+except Exception as e:\n    print(f"ERROR: {e}")
+mystdout.getvalue()
+            `;
+
+            try {
+                let output = await pyodide.runPythonAsync(script);
+                if (output.trim() === "") { outConsole.innerHTML = "> [Sistem]: Kode jalan tanpa error, tapi tidak ada instruksi print()."; } 
+                else { outConsole.innerHTML = output.replace(/\n/g, '<br>'); }
+                
+                if(output.includes("ERROR:")) outConsole.style.color = "var(--cyber-pink)";
+                else outConsole.style.color = "var(--text-main)";
+            } catch (err) { outConsole.innerHTML = "<span style='color:var(--cyber-pink);'>CRITICAL ERROR: " + err + "</span>"; } 
+            finally { btnElement.innerText = "RUN ▶"; btnElement.disabled = false; }
+        }
+    </script>
+</body>
+</html>
