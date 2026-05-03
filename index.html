@@ -17,12 +17,11 @@
             --text-main: #cbd5e1;      
             
             /* Warna Neon Pastel (Soft Neon) */
-            --neon-red: #ff758f;       /* Red: Midterm */
-            --neon-yellow: #fde047;    /* Yellow: Node 01 */
-            --neon-blue: #7dd3fc;      /* Blue: Node 02 */
-            --neon-green: #6ee7b7;     /* Mint Green: Node 03 */
-            --cyber-pink: #f472b6;     
-            --cyber-purple: #c084fc;   
+            --neon-yellow: #fde047;    /* Node 01 */
+            --neon-blue: #7dd3fc;      /* Node 02 */
+            --neon-green: #6ee7b7;     /* Node 03 */
+            --cyber-pink: #f472b6;     /* Node 04 */
+            --neon-orange: #fb923c;    /* Node 05 */
             
             --font-ui: 'Share Tech Mono', monospace;
             --font-header: 'Silkscreen', cursive;
@@ -37,8 +36,8 @@
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             
             background-image: 
-                radial-gradient(rgba(255, 117, 143, 0.05) 1px, transparent 1px),
-                radial-gradient(rgba(110, 231, 183, 0.03) 1px, transparent 1px),
+                radial-gradient(rgba(125, 211, 252, 0.05) 1px, transparent 1px),
+                radial-gradient(rgba(244, 114, 182, 0.03) 1px, transparent 1px),
                 repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.15) 3px);
             background-size: 30px 30px, 40px 40px, 100% 4px;
             background-position: 0 0, 15px 15px, 0 0;
@@ -51,7 +50,7 @@
 
         h1 { 
             font-family: var(--font-header); font-size: 3.5rem; margin: 0; 
-            color: #fff; text-shadow: 0 0 10px rgba(125,211,252,0.4), 0 0 20px rgba(253,224,71,0.2), 0 0 30px rgba(255,117,143,0.2);
+            color: #fff; text-shadow: 0 0 10px rgba(125,211,252,0.4), 0 0 20px rgba(253,224,71,0.2), 0 0 30px rgba(244,114,182,0.2);
         }
 
         .subtitle { color: #888; font-size: 1.2rem; letter-spacing: 3px; margin-top: 10px; display: block; }
@@ -77,30 +76,31 @@
         .card::before { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 6px; background: #334155; transition: 0.3s; }
         .card:hover { transform: translateY(-10px); background: #282a36; }
         
-        /* THEMES */
-        .card.node-red:hover { border-color: var(--neon-red); box-shadow: 0 15px 30px rgba(255,117,143,0.15); }
-        .card.node-red:hover::before { background: var(--neon-red); }
-        .card.node-red:hover h2 { color: var(--neon-red); }
-        .card.node-red:hover .btn-enter { background: var(--neon-red); color: #000; border-color: var(--neon-red); }
+        /* THEMES PER NODE */
+        .card.node-01:hover { border-color: var(--neon-yellow); box-shadow: 0 15px 30px rgba(253,224,71,0.15); }
+        .card.node-01:hover::before { background: var(--neon-yellow); }
+        .card.node-01:hover h2 { color: var(--neon-yellow); }
+        .card.node-01:hover .btn-enter { background: var(--neon-yellow); color: #000; border-color: var(--neon-yellow); }
 
-        .card.node-yellow:hover { border-color: var(--neon-yellow); box-shadow: 0 15px 30px rgba(253,224,71,0.15); }
-        .card.node-yellow:hover::before { background: var(--neon-yellow); }
-        .card.node-yellow:hover h2 { color: var(--neon-yellow); }
-        .card.node-yellow:hover .btn-enter { background: var(--neon-yellow); color: #000; border-color: var(--neon-yellow); }
+        .card.node-02:hover { border-color: var(--neon-blue); box-shadow: 0 15px 30px rgba(125,211,252,0.15); }
+        .card.node-02:hover::before { background: var(--neon-blue); }
+        .card.node-02:hover h2 { color: var(--neon-blue); }
+        .card.node-02:hover .btn-enter { background: var(--neon-blue); color: #000; border-color: var(--neon-blue); }
 
-        .card.node-blue:hover { border-color: var(--neon-blue); box-shadow: 0 15px 30px rgba(125,211,252,0.15); }
-        .card.node-blue:hover::before { background: var(--neon-blue); }
-        .card.node-blue:hover h2 { color: var(--neon-blue); }
-        .card.node-blue:hover .btn-enter { background: var(--neon-blue); color: #000; border-color: var(--neon-blue); }
+        .card.node-03:hover { border-color: var(--neon-green); box-shadow: 0 15px 30px rgba(110,231,183,0.15); }
+        .card.node-03:hover::before { background: var(--neon-green); }
+        .card.node-03:hover h2 { color: var(--neon-green); }
+        .card.node-03:hover .btn-enter { background: var(--neon-green); color: #000; border-color: var(--neon-green); }
 
-        .card.node-green:hover { border-color: var(--neon-green); box-shadow: 0 15px 30px rgba(110,231,183,0.15); }
-        .card.node-green:hover::before { background: var(--neon-green); }
-        .card.node-green:hover h2 { color: var(--neon-green); }
-        .card.node-green:hover .btn-enter { background: var(--neon-green); color: #000; border-color: var(--neon-green); }
+        .card.node-04:hover { border-color: var(--cyber-pink); box-shadow: 0 15px 30px rgba(244,114,182,0.15); }
+        .card.node-04:hover::before { background: var(--cyber-pink); }
+        .card.node-04:hover h2 { color: var(--cyber-pink); }
+        .card.node-04:hover .btn-enter { background: var(--cyber-pink); color: #000; border-color: var(--cyber-pink); }
 
-        /* LOCKED */
-        .card.locked { opacity: 0.6; cursor: not-allowed; border-color: #333; }
-        .card.locked:hover { transform: none; background: rgba(30, 30, 47, 0.8); }
+        .card.node-05:hover { border-color: var(--neon-orange); box-shadow: 0 15px 30px rgba(251,146,60,0.15); }
+        .card.node-05:hover::before { background: var(--neon-orange); }
+        .card.node-05:hover h2 { color: var(--neon-orange); }
+        .card.node-05:hover .btn-enter { background: var(--neon-orange); color: #000; border-color: var(--neon-orange); }
 
         /* TEXT */
         h2 { font-family: var(--font-header); font-size: 1.4rem; color: #f8fafc; margin-top: 15px; transition: 0.3s; }
@@ -126,44 +126,55 @@
 
     <header>
         <h1>SYSTEM_LOGIN</h1>
-        <span class="subtitle">OOP // PYTHON PROTOCOLS</span>
+        <span class="subtitle">NCART ACADEMY // PYTHON PROTOCOLS</span>
     </header>
 
     <div class="mission-grid">
-
-        <a href="pertemuan1.html" class="card node-yellow">
+        
+        <!-- NODE 01 (KUNING) -->
+        <a href="pertemuan1.html" class="card node-01">
             <div class="level-tag">// OOP NODE 01</div>
             <h2>CLASS & OBJECT</h2>
             <p>Memasuki dimensi objek. Pelajari fondasi utama tentang Blueprint (Class) dan Wujud Nyata (Object).</p>
             <div class="btn-enter">>>> INITIATE</div>
         </a>
 
-        <a href="pertemuan2.html" class="card node-blue">
+        <!-- NODE 02 (BIRU) -->
+        <a href="pertemuan2.html" class="card node-02">
             <div class="level-tag">// OOP NODE 02</div>
             <h2>METHOD & SELF</h2>
             <p>Meniupkan kehidupan. Pelajari cara mengajari objek melakukan aksi dan mengingat identitasnya.</p>
             <div class="btn-enter">>>> INITIATE</div>
         </a>
 
-        <a href="pertemuan3.html" class="card node-green">
+        <!-- NODE 03 (HIJAU) -->
+        <a href="pertemuan3.html" class="card node-03">
             <div class="level-tag">// OOP NODE 03</div>
             <h2>CONSTRUCTOR</h2>
             <p>Sihir perakitan otomatis. Pelajari method __init__ untuk mencetak objek lengkap dengan data instan.</p>
             <div class="btn-enter">>>> INITIATE</div>
         </a>
 
-        <a href="exam1.html" class="card node-red">
-            <div class="level-tag" style="color:var(--cyber-pink);">// OOP EXAM 1</div>
-            <h2 style="color:#64748b;">OBJECT-ORIENTED PROGRAMMING EXAM 1</h2>
-            <p>Ujian 1 modul pemrograman berorientasi objek.</p>
-            <div class="btn-enter" style="color:#475569; border-color:#334155;">>>>> INITIATE</div> 
+        <!-- NODE 04 (PINK) -->
+        <a href="pertemuan4.html" class="card node-04">
+            <div class="level-tag">// OOP NODE 04</div>
+            <h2>ENCAPSULATION</h2>
+            <p>Protokol keamanan. Sembunyikan dan lindungi atribut objek (data) dari peretasan eksternal.</p>
+            <div class="btn-enter">>>> INITIATE</div>
         </a>
-        
+
+        <!-- NODE 05 (ORANYE) -->
+        <a href="pertemuan5.html" class="card node-05">
+            <div class="level-tag">// OOP NODE 05</div>
+            <h2>INHERITANCE</h2>
+            <p>Pewarisan genetika kode. Hemat ratusan baris kode dengan mewariskan sifat Class Induk ke Class Anak.</p>
+            <div class="btn-enter">>>> INITIATE</div>
+        </a>
 
     </div>
 
     <footer>
-        SMA GUNUNG MADU // INFORMATIKA // M. AZIZ AL ASSAD // 2026
+        SMA GUNUNG MADU // INFORMATIKA // M. AZIZ AL ASSAD, S.T., GR. // 2026
     </footer>
 
 </body>

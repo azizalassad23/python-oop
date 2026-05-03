@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EVALUATION // NODE 05 INHERITANCE</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=JetBrains+Mono:wght@400;700&family=Silkscreen&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+
+    <style>
+        :root {
+            --bg-dark: #13141c; --bg-panel: #1e1e2f;
+            --neon-blue: #7dd3fc; --neon-orange: #fb923c;
+            --text-main: #cbd5e1; --neon-red: #ff758f;
+            --font-ui: 'Share Tech Mono', monospace;
+            --font-code: 'JetBrains Mono', monospace;
+            --font-header: 'Silkscreen', cursive;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-dark); color: var(--text-main); font-family: var(--font-ui); margin: 0; padding: 0; 
+            height: 100vh; display: flex; flex-direction: column; overflow: hidden;
+            background-image: radial-gradient(rgba(251, 146, 60, 0.05) 1px, transparent 1px), repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.15) 3px);
+            background-size: 30px 30px, 100% 4px; box-shadow: inset 0 0 100px rgba(0,0,0,0.5);
+        }
+
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(19, 20, 28, 0.98); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px; }
+
+        input.cyber-input { background: rgba(30, 30, 47, 0.8); border: 2px solid var(--neon-orange); color: #fff; padding: 15px; width: 300px; max-width: 100%; margin: 10px; font-family: var(--font-ui); font-size: 1.1rem; text-align: center; border-radius: 6px; }
+
+        .btn-cyber { background: var(--neon-orange); color: #000; border: none; border-radius: 4px; padding: 15px 40px; font-family: var(--font-header); font-size: 1.2rem; cursor: pointer; margin-top: 20px; transition: 0.3s; }
+        .btn-cyber:hover { background: #fff; box-shadow: 0 0 20px rgba(251,146,60,0.5); }
+
+        header { height: 70px; background: rgba(15, 17, 26, 0.9); border-bottom: 2px solid var(--neon-orange); display: flex; align-items: center; justify-content: space-between; padding: 0 30px; }
+        h1 { font-family: var(--font-header); font-size: 1.4rem; margin: 0; color: var(--neon-orange); }
+        .timer-box { font-size: 1.5rem; color: #fff; font-family: var(--font-header); letter-spacing: 2px; }
+        
+        .workspace { display: flex; height: calc(100vh - 70px); }
+        .problem-panel { width: 35%; background: rgba(19, 20, 28, 0.8); border-right: 1px solid #334155; padding: 30px; overflow-y: auto; }
+        .editor-panel { width: 65%; display: flex; flex-direction: column; background: #0f111a; }
+        
+        textarea#code-editor { flex: 1; background: #0f111a; color: var(--neon-orange); border: none; padding: 20px; font-family: var(--font-code); font-size: 16px; resize: none; outline: none; line-height: 1.5; }
+        .terminal { height: 180px; background: #000; color: #f8fafc; padding: 15px; font-family: var(--font-code); font-size: 14px; border-top: 1px solid #334155; overflow-y: auto; }
+        .toolbar { height: 65px; background: #1e1e2f; border-top: 1px solid #334155; display: flex; justify-content: flex-end; align-items: center; padding: 0 20px; gap: 15px; }
+        
+        .level-badge { background: var(--neon-orange); color: #000; padding: 4px 10px; font-family: var(--font-header); border-radius: 4px; }
+        h2 { color: var(--neon-blue); font-family: var(--font-header); font-size: 1.2rem; margin-top: 15px;}
+
+        .btn-run { background: var(--neon-orange); color: #000; padding: 10px 20px; border: none; border-radius: 4px; font-family: var(--font-header); cursor: pointer; }
+        .btn-next { background: var(--neon-blue); color: #000; padding: 10px 20px; border: none; border-radius: 4px; font-family: var(--font-header); cursor: pointer; display: none; }
+
+        .lock-timer { font-size: 5rem; font-family: var(--font-header); margin: 20px 0; color: var(--neon-orange); }
+
+        @media (max-width: 768px) {
+            body { height: auto; overflow-y: auto; }
+            header { padding: 15px; height: auto; flex-direction: column; gap: 10px; }
+            .workspace { flex-direction: column; height: auto; overflow: visible; }
+            .problem-panel { width: 100%; height: auto; padding: 20px; border-right: none; border-bottom: 2px solid var(--neon-orange); }
+            .editor-panel { width: 100%; height: auto; }
+            textarea#code-editor { height: 300px; flex: none; }
+            .terminal { height: 150px; }
+            .toolbar { flex-direction: column; height: auto; padding: 15px; gap: 10px; }
+            .btn-run, .btn-next { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- LOGIN SCREEN -->
+    <div id="login-screen" class="overlay">
+        <h1 style="font-size: 2.2rem; color: var(--neon-blue); font-family: var(--font-header);">LATIHAN: NODE 05</h1>
+        <p style="color: var(--neon-orange); font-weight: bold; margin-bottom: 30px;">[ INHERITANCE ] 10 SOAL. ANTI-CHEAT ACTIVE.</p>
+        <input type="text" id="inp-nama" class="cyber-input" placeholder="NAMA LENGKAP" autocomplete="off">
+        <input type="text" id="inp-kelas" class="cyber-input" placeholder="KELAS (Ex: XI-1)" autocomplete="off">
+        <button class="btn-cyber" onclick="initializeNewExam()">MULAI EVALUASI</button>
+    </div>
+
+    <div id="loader" class="overlay" style="display:none;">
+        <h2 style="font-family: var(--font-header); color: var(--neon-orange); font-size: 1.5rem;">COMPILING KERNEL...</h2>
+    </div>
+
+    <!-- WARNING & LOCKDOWN SCREENS -->
+    <div id="warning-screen" class="overlay" style="display:none;">
+        <h1 style="font-size: 2.5rem; font-family: var(--font-header); color: var(--neon-red);">PERINGATAN!</h1>
+        <p>Akses tab lain dilarang. Pelanggaran kedua akan mengunci sesi ini.</p>
+        <button class="btn-cyber" onclick="dismissWarning()">SAYA MENGERTI</button>
+    </div>
+
+    <div id="lockdown-screen" class="overlay" style="display:none;">
+        <h1 style="font-size: 3rem; font-family: var(--font-header);">SISTEM TERKUNCI</h1>
+        <div class="lock-timer" id="lock-timer">20:00</div>
+        <p>Melanggar protokol perpindahan tab.</p>
+    </div>
+
+    <!-- MAIN UI -->
+    <header>
+        <h1>OOP // LATIHAN_05</h1>
+        <div style="display: flex; gap: 20px; align-items: center;">
+            <div style="color: var(--neon-orange); font-size: 0.9rem;">FAILURES: <span id="violation-count">0</span></div>
+            <div class="timer-box" id="main-timer">90:00</div>
+        </div>
+    </header>
+
+    <div class="workspace">
+        <div class="problem-panel">
+            <span class="level-badge" id="lvl-badge">SOAL 01/10</span>
+            <h2 id="q-title">...</h2>
+            <div id="q-desc" style="color:#cbd5e1; line-height:1.6; font-size: 1.1rem;">...</div>
+        </div>
+
+        <div class="editor-panel">
+            <textarea id="code-editor" spellcheck="false"></textarea>
+            <div class="terminal" id="console">> Awaiting Input...</div>
+            <div class="toolbar">
+                <span id="status-msg" style="margin-right:auto; color:var(--neon-blue)">Ready.</span>
+                <button class="btn-run" id="btn-run" onclick="runCode()">EKSEKUSI ▶</button>
+                <button class="btn-next" id="btn-next" onclick="nextQuestion()">NEXT >></button>
+            </div>
+        </div>
+    </div>
+
+    <div id="result-screen" class="overlay" style="display:none;">
+        <h1 style="font-size: 3rem; color: var(--neon-orange); font-family: var(--font-header);">NODE COMPLETE</h1>
+        <p style="font-size: 1.2rem;">TOTAL SCORE: <span id="final-score" style="color:#fff; font-size: 2.5rem;">0</span> / 1000</p>
+        <button class="btn-cyber" onclick="window.location.href='index.html'">BACK TO HUB</button>
+    </div>
+
+    <script>
+        const GOOGLE_SCRIPT_URL = 'URL_GOOGLE_SCRIPT_ANDA_DISINI'; 
+
+        let pyodide;
+        let studentName = "", studentClass = "";
+        let examEndTime = 0; let lockEndTime = 0; 
+        let examTimerInterval, lockTimerInterval;
+        let currentQ = 0, score = 0, violations = 0;
+        let isExamActive = false, isLocked = false, isWarningOpen = false;
+        let lastPenaltyTime = 0;
+
+        // --- DATABASE SOAL INHERITANCE ---
+        const questions = [
+            { title: "01. PARENT CLASS", desc: "Buatlah class induk <strong>Karakter</strong> dengan method <code>jalan(self)</code> yang mencetak teks <code>'Berjalan'</code>.", default: "class Karakter:\n    # Buat method jalan di sini\n    pass\n", check: (c, o) => c.replace(/\s/g, '').includes("defjalan(self):") && o.toLowerCase().includes("berjalan") === false && c.includes("Berjalan") },
+            { title: "02. CHILD CLASS", desc: "Buatlah class anak bernama <strong>Ninja</strong> yang mewarisi class <strong>Karakter</strong>. Kosongkan isinya dengan <code>pass</code>.", default: "class Karakter:\n    def jalan(self):\n        print('Berjalan')\n\n# Buat class Ninja di sini\n", check: (c, o) => c.replace(/\s/g, '').includes("classNinja(Karakter):") && c.replace(/\s/g, '').includes("pass") },
+            { title: "03. PANGGIL WARISAN", desc: "Objek <code>n1</code> adalah seekor <strong>Ninja</strong>. Panggil method <code>jalan()</code> miliknya untuk membuktikan ia mewarisi method tersebut dari Karakter.", default: "class Karakter:\n    def jalan(self):\n        print('Berjalan')\nclass Ninja(Karakter):\n    pass\n\nn1 = Ninja()\n# Panggil method jalan dari n1\n", check: (c, o) => c.replace(/\s/g, '').includes("n1.jalan()") && o.toLowerCase().includes("berjalan") },
+            { title: "04. SKILL KHUSUS ANAK", desc: "Tambahkan method <code>lari(self)</code> ke dalam class <strong>Ninja</strong> yang mencetak <code>'Wush!'</code>. Method ini adalah milik Ninja saja.", default: "class Karakter:\n    def jalan(self):\n        print('Berjalan')\n\nclass Ninja(Karakter):\n    # Tambahkan method lari di sini\n    pass\n", check: (c, o) => c.replace(/\s/g, '').includes("deflari(self):") && c.includes("Wush") },
+            { title: "05. BANYAK ANAK", desc: "Buat class anak kedua bernama <strong>Samurai</strong> yang juga mewarisi class <strong>Karakter</strong>.", default: "class Karakter:\n    def jalan(self):\n        print('Berjalan')\nclass Ninja(Karakter):\n    pass\n\n# Buat class Samurai di sini\n", check: (c, o) => c.replace(/\s/g, '').includes("classSamurai(Karakter):") },
+            { title: "06. OVERRIDING DASAR", desc: "Class <strong>Burung</strong> punya method <code>suara()</code>. Buat class <strong>Bebek</strong> yang mewarisi Burung, lalu timpa (override) method <code>suara()</code> agar mencetak <code>'Kwek kwek'</code>.", default: "class Burung:\n    def suara(self):\n        print('Cuit cuit')\n\n# Buat class Bebek(Burung) dan override suara()\n", check: (c, o) => c.replace(/\s/g, '').includes("classBebek(Burung):") && c.replace(/\s/g, '').includes("defsuara(self):") && c.toLowerCase().includes("kwek") },
+            { title: "07. BUKTI OVERRIDING", desc: "Objek <code>b1</code> adalah seekor <strong>Bebek</strong>. Panggil method <code>suara()</code> miliknya untuk membuktikan bunyinya sudah menimpa suara induknya.", default: "class Burung:\n    def suara(self):\n        print('Cuit cuit')\nclass Bebek(Burung):\n    def suara(self):\n        print('Kwek kwek')\n\nb1 = Bebek()\n# Panggil suara() dari b1\n", check: (c, o) => c.replace(/\s/g, '').includes("b1.suara()") && o.toLowerCase().includes("kwek") && !o.toLowerCase().includes("cuit") },
+            { title: "08. WARISAN ATRIBUT", desc: "Class <strong>Hewan</strong> punya atribut <code>self.hidup = True</code>. Class <strong>Kucing(Hewan)</strong> tidak punya isi apa-apa. Gunakan perintah <code>print()</code> pada <code>k1.hidup</code> untuk membuktikan Kucing mewarisi atribut dari Hewan.", default: "class Hewan:\n    def __init__(self):\n        self.hidup = True\nclass Kucing(Hewan):\n    pass\n\nk1 = Kucing()\n# Print atribut hidup dari k1\n", check: (c, o) => c.replace(/\s/g, '').includes("print(k1.hidup)") && o.includes("True") },
+            { title: "09. PEWARISAN & MATEMATIKA", desc: "Class <strong>Kotak</strong> punya <code>self.sisi = 10</code>. Class <strong>Kubus(Kotak)</strong> punya method <code>volume(self)</code>. Return hasil perhitungan <code>self.sisi * self.sisi * self.sisi</code> di dalam method tersebut.", default: "class Kotak:\n    def __init__(self):\n        self.sisi = 10\n\nclass Kubus(Kotak):\n    # Buat method volume\n    pass\n", check: (c, o) => c.replace(/\s/g, '').includes("defvolume(self):") && c.replace(/\s/g, '').includes("self.sisi*self.sisi*self.sisi") },
+            { title: "10. MASTER INHERITANCE", desc: "1. Class <strong>Hero</strong>: punya method <code>attack(self)</code> yang print 'Punch'.<br>2. Class <strong>Mage(Hero)</strong>: override method <code>attack(self)</code> menjadi print 'Magic'.<br>3. Buat objek <code>m = Mage()</code>, lalu panggil <code>m.attack()</code>.", default: "# Gabungkan semuanya secara mandiri di sini!\n", check: (c, o) => c.includes("class Mage(Hero):") && c.replace(/\s/g, '').includes("defattack(self):") && o.replace(/\s/g, '').toLowerCase().includes("magic") }
+        ];
+
+        window.onload = function() {
+            if (localStorage.getItem("oop5_active") === "true") {
+                studentName = localStorage.getItem("oop5_name");
+                studentClass = localStorage.getItem("oop5_class");
+                examEndTime = parseInt(localStorage.getItem("oop5_examEnd"));
+                currentQ = parseInt(localStorage.getItem("oop5_currentQ"));
+                score = parseInt(localStorage.getItem("oop5_score"));
+                violations = parseInt(localStorage.getItem("oop5_violations")) || 0;
+                document.getElementById("violation-count").innerText = violations;
+                document.getElementById("login-screen").style.display = "none";
+                document.getElementById("loader").style.display = "flex";
+                initPython(true); 
+            } else if (localStorage.getItem("oop5_active") === "finished") {
+                document.getElementById("login-screen").innerHTML = "<h1>ALREADY FINISHED.</h1>";
+            }
+        };
+
+        function initializeNewExam() {
+            studentName = document.getElementById("inp-nama").value.trim();
+            studentClass = document.getElementById("inp-kelas").value.trim();
+            if(!studentName || !studentClass) return alert("Isi data terlebih dahulu.");
+            localStorage.setItem("oop5_active", "true");
+            localStorage.setItem("oop5_name", studentName);
+            localStorage.setItem("oop5_class", studentClass);
+            localStorage.setItem("oop5_score", "0");
+            localStorage.setItem("oop5_currentQ", "0");
+            localStorage.setItem("oop5_violations", "0");
+            examEndTime = Date.now() + (5400 * 1000);
+            localStorage.setItem("oop5_examEnd", examEndTime.toString());
+            document.getElementById("login-screen").style.display = "none";
+            document.getElementById("loader").style.display = "flex";
+            initPython(false);
+        }
+
+        async function initPython(isResume) {
+            try {
+                pyodide = await loadPyodide();
+                document.getElementById("loader").style.display = "none";
+                isExamActive = true;
+                startMainTimer();
+                loadQuestion(currentQ);
+                document.addEventListener('visibilitychange', handleVisibilityChange);
+                window.addEventListener('blur', handleWindowBlur);
+                if (isResume) {
+                    let savedLockEnd = parseInt(localStorage.getItem("oop5_lockEnd")) || 0;
+                    if (savedLockEnd > Date.now()) { lockEndTime = savedLockEnd; resumeLockdown(); }
+                }
+            } catch (err) { alert("Kernel Fail."); }
+        }
+
+        function handleVisibilityChange() { if (document.hidden && isExamActive) applyPenalty(); }
+        function handleWindowBlur() { if (isExamActive) applyPenalty(); }
+        function applyPenalty() {
+            let now = Date.now(); if (now - lastPenaltyTime < 1000) return; lastPenaltyTime = now;
+            violations++; localStorage.setItem("oop5_violations", violations.toString());
+            document.getElementById("violation-count").innerText = violations;
+            if (violations === 1) { isWarningOpen = true; document.getElementById("warning-screen").style.display = "flex"; }
+            else { if(isWarningOpen) document.getElementById("warning-screen").style.display = "none"; isWarningOpen = false;
+                lockEndTime = Date.now() + (1200 * 1000); localStorage.setItem("oop5_lockEnd", lockEndTime.toString()); resumeLockdown(); 
+            }
+        }
+        function dismissWarning() { document.getElementById("warning-screen").style.display = "none"; isWarningOpen = false; }
+        function resumeLockdown() {
+            isLocked = true; document.getElementById("lockdown-screen").style.display = "flex";
+            clearInterval(lockTimerInterval);
+            lockTimerInterval = setInterval(() => {
+                let timeLeft = Math.max(0, Math.floor((lockEndTime - Date.now()) / 1000));
+                let m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+                let s = (timeLeft % 60).toString().padStart(2, '0');
+                document.getElementById('lock-timer').innerText = `${m}:${s}`;
+                if(Date.now() >= lockEndTime) { clearInterval(lockTimerInterval); document.getElementById("lockdown-screen").style.display = "none"; isLocked = false; localStorage.removeItem("oop5_lockEnd"); }
+            }, 1000);
+        }
+        function startMainTimer() {
+            examTimerInterval = setInterval(() => {
+                let timeLeft = Math.max(0, Math.floor((examEndTime - Date.now()) / 1000));
+                if(timeLeft <= 0) { finishExam(); } else {
+                    let m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+                    let s = (timeLeft % 60).toString().padStart(2, '0');
+                    document.getElementById('main-timer').innerText = `${m}:${s}`;
+                }
+            }, 1000);
+        }
+
+        function loadQuestion(idx) {
+            const q = questions[idx];
+            document.getElementById("lvl-badge").innerText = `SOAL ${String(idx+1).padStart(2,'0')}/10`;
+            document.getElementById("q-title").innerText = q.title;
+            document.getElementById("q-desc").innerHTML = q.desc;
+            document.getElementById("code-editor").value = q.default;
+            document.getElementById("btn-next").style.display = "none";
+            document.getElementById("btn-run").disabled = false;
+            document.getElementById("console").innerText = "> ...";
+        }
+
+        async function runCode() {
+            if(isLocked || isWarningOpen) return;
+            const btn = document.getElementById("btn-run");
+            const term = document.getElementById("console");
+            const code = document.getElementById("code-editor").value;
+            const q = questions[currentQ];
+            
+            btn.disabled = true; 
+            term.innerText = "> Running...";
+            
+            let script = `import sys\nfrom io import StringIO\nsys.stdout = mystdout = StringIO()\ntry:\n${code.split('\n').map(l=>'    '+l).join('\n')}\nexcept Exception as e: print(f"Error: {e}")\nmystdout.getvalue()`;
+            
+            try {
+                let out = await pyodide.runPythonAsync(script); 
+                term.innerText = out;
+                
+                if(out.includes("Error:")) { 
+                    document.getElementById("status-msg").innerText = "[!] ERROR"; 
+                }
+                else if(q.check(code, out)) { 
+                    document.getElementById("status-msg").innerText = "[+] CORRECT"; 
+                    document.getElementById("btn-next").style.display = "inline-block"; 
+                    if(!q.completed) { 
+                        score += 100; 
+                        q.completed = true; 
+                        localStorage.setItem("oop5_score", score.toString()); 
+                    } 
+                }
+                else { 
+                    document.getElementById("status-msg").innerText = "[-] WRONG"; 
+                }
+            } catch (e) { 
+                term.innerText = "Error: " + e; 
+            } finally { 
+                btn.disabled = false; 
+            }
+        }
+
+        function nextQuestion() {
+            currentQ++; if(currentQ < questions.length) { localStorage.setItem("oop5_currentQ", currentQ.toString()); loadQuestion(currentQ); }
+            else { finishExam(); }
+        }
+
+        function finishExam() {
+            isExamActive = false; clearInterval(examTimerInterval); clearInterval(lockTimerInterval);
+            localStorage.setItem("oop5_active", "finished");
+            document.getElementById("result-screen").style.display = "flex";
+            document.getElementById("final-score").innerText = score;
+            sendDataToSheet();
+        }
+
+        function sendDataToSheet() {
+            let timeUsedSeconds = Math.max(0, 5400 - Math.floor((examEndTime - Date.now()) / 1000));
+            let m = Math.floor(timeUsedSeconds / 60).toString().padStart(2, '0');
+            let s = (timeUsedSeconds % 60).toString().padStart(2, '0');
+            const payload = { nama: studentName + " (OOP-5)", kelas: studentClass, skor: score, durasi: `${m}:${s}`, pelanggaran: violations };
+            fetch(GOOGLE_SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NODE 04 // ENCAPSULATION</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=JetBrains+Mono:wght@400;700&family=Silkscreen&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+
+    <style>
+        :root {
+            --bg-dark: #13141c; --bg-panel: #1e1e2f;
+            --neon-red: #ff758f; --neon-yellow: #fde047;
+            --neon-blue: #7dd3fc; --cyber-pink: #f472b6;
+            --text-main: #cbd5e1;
+            --font-ui: 'Share Tech Mono', monospace;
+            --font-code: 'JetBrains Mono', monospace;
+            --font-header: 'Silkscreen', cursive;
+        }
+
+        * { box-sizing: border-box; scroll-behavior: smooth; }
+
+        body {
+            background-color: var(--bg-dark); color: var(--text-main); font-family: var(--font-ui);
+            margin: 0; padding: 0; line-height: 1.7;
+            background-image: 
+                radial-gradient(rgba(244, 114, 182, 0.05) 1px, transparent 1px),
+                repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.15) 3px);
+            background-size: 30px 30px, 100% 4px; background-attachment: fixed;
+            box-shadow: inset 0 0 100px rgba(0,0,0,0.5); min-height: 100vh;
+        }
+
+        nav {
+            background: rgba(19, 20, 28, 0.9); border-bottom: 2px solid var(--cyber-pink);
+            padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; 
+            position: sticky; top: 0; z-index: 100; backdrop-filter: blur(8px);
+        }
+        .nav-brand { font-family: var(--font-header); font-size: 1.5rem; color: var(--cyber-pink); margin: 0; }
+        .back-btn { color: var(--text-main); text-decoration: none; border: 1px solid #475569; padding: 6px 16px; border-radius: 4px; background: rgba(30,30,47,0.5); transition: 0.3s; }
+        .back-btn:hover { background: var(--cyber-pink); color: #000; border-color: var(--cyber-pink); }
+
+        .container { max-width: 900px; margin: 0 auto; padding: 40px 20px; background: rgba(19, 20, 28, 0.85); min-height: 100vh; border-left: 1px solid rgba(244,114,182,0.1); border-right: 1px solid rgba(244,114,182,0.1); }
+
+        h1 { font-family: var(--font-header); color: var(--cyber-pink); font-size: 2.2rem; border-left: 5px solid var(--cyber-pink); padding-left: 15px; margin-bottom: 10px; }
+        h2 { font-family: var(--font-header); color: var(--neon-blue); font-size: 1.5rem; margin-top: 50px; border-bottom: 1px dashed #334155; padding-bottom: 10px; }
+        p { font-size: 1.1rem; } strong { color: #f8fafc; }
+
+        .info-box { background: rgba(244, 114, 182, 0.05); border-left: 4px solid var(--cyber-pink); padding: 15px 20px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .warning-box { background: rgba(255, 117, 143, 0.05); border-left: 4px solid var(--neon-red); padding: 15px 20px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+
+        .example-block { background: var(--bg-panel); border: 1px solid #334155; border-radius: 6px; margin: 20px 0; overflow: hidden; }
+        .example-header { background: #0f111a; padding: 8px 15px; font-size: 0.85rem; color: #94a3b8; border-bottom: 1px solid #334155; }
+        pre { margin: 0; padding: 15px; overflow-x: auto; font-family: var(--font-code); color: var(--neon-blue); font-size: 15px; line-height: 1.5; }
+        .keyword { color: var(--cyber-pink); } .comment { color: #64748b; font-style: italic; } .string { color: var(--neon-yellow); }
+
+        .mini-lab { background: #0f111a; border: 1px solid #334155; border-left: 4px solid var(--cyber-pink); margin: 30px 0; border-radius: 6px; overflow: hidden; }
+        .mini-editor { width: 100%; height: 260px; background: #13141c; color: var(--neon-yellow); border: none; padding: 15px; font-family: var(--font-code); font-size: 15px; outline: none; resize: vertical; line-height: 1.5; }
+        .mini-toolbar { background: var(--bg-panel); padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #334155; border-bottom: 1px solid #334155; }
+        .mini-btn { background: transparent; color: var(--cyber-pink); border: 1px solid var(--cyber-pink); padding: 6px 18px; font-family: var(--font-header); cursor: pointer; border-radius: 4px; transition: 0.2s; }
+        .mini-btn:hover { background: var(--cyber-pink); color: #000; box-shadow: 0 0 15px rgba(244,114,182,0.4); }
+        .mini-console { background: #000; color: #fff; padding: 15px; font-family: var(--font-code); min-height: 80px; white-space: pre-wrap; font-size: 14px; }
+
+        .next-section { text-align: center; margin-top: 60px; padding: 40px 20px; background: rgba(244, 114, 182, 0.05); border: 1px dashed var(--cyber-pink); border-radius: 8px; }
+        .btn-latihan { display: inline-block; background: var(--cyber-pink); color: #000; padding: 15px 40px; font-family: var(--font-header); border-radius: 6px; text-decoration: none; font-size: 1.3rem; transition: 0.3s; }
+        .btn-latihan:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(244,114,182,0.3); }
+
+        #loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-dark); z-index: 9999; display: flex; justify-content: center; align-items: center; }
+    </style>
+</head>
+<body>
+
+    <div id="loader">
+        <h2 style="font-family: var(--font-header); color: var(--cyber-pink);">ENCRYPTING DATA...</h2>
+    </div>
+
+    <nav>
+        <h1 class="nav-brand">CIT CLASS</h1>
+        <a href="index.html" class="back-btn"><< KEMBALI</a>
+    </nav>
+
+    <div class="container">
+        <h1>NODE 04: ENCAPSULATION</h1>
+        <p>Bayangkan kamu sedang membuat game multiplayer. Kamu sudah mendesain bos monster dengan darah (HP) 5000. Tiba-tiba, ada <em>hacker</em> (pemain iseng) yang menggunakan program ilegal untuk mengubah HP bos tersebut menjadi 1 dari luar sistem.</p>
+        
+        <p>Sejauh ini, kode OOP yang kita buat sangat rentan terhadap serangan seperti itu. Mari kita lihat alasannya.</p>
+
+        <!-- TAHAP 1: MASALAH -->
+        <h2>1. Masalah: Atribut Terbuka (Public)</h2>
+        <p>Secara <em>default</em>, semua atribut di Python bersifat <strong>Public</strong>. Artinya, siapa saja bisa membaca dan mengubahnya dari luar Class dengan bebas.</p>
+
+        <div class="warning-box">
+            <div class="example-header" style="background: transparent; border:none; padding:0; margin-bottom:10px;">📄 Contoh: Serangan Hacker</div>
+            <pre style="background: rgba(0,0,0,0.3); border: 1px solid var(--neon-red); margin:0;">
+<span class="keyword">class</span> Monster:
+    <span class="keyword">def</span> __init__(<span class="keyword">self</span>):
+        <span class="keyword">self</span>.hp = 5000
+
+bos = Monster()
+
+<span class="comment"># HACKER MENYERANG! </span>
+bos.hp = 1  <span class="comment"># Hacker bebas mengubah HP dari luar class!</span>
+print(<span class="string">"HP Bos:"</span>, bos.hp)  <span class="comment"># Output: 1 (Game rusak!)</span></pre>
+        </div>
+
+        <!-- TAHAP 2: SOLUSI -->
+        <h2>2. Solusi: Menggembok Atribut (Private)</h2>
+        <p>Untuk mencegah <em>hacker</em> menyentuh data kita dari luar, kita harus melakukan <strong>Encapsulation</strong>. Caranya: tambahkan <strong>dua garis bawah (underscore)</strong> di depan nama atribut.</p>
+
+        <div class="example-block">
+            <div class="example-header">📄 Contoh: Atribut yang Digembok</div>
+            <pre>
+<span class="keyword">class</span> Monster:
+    <span class="keyword">def</span> __init__(<span class="keyword">self</span>):
+        <span class="keyword">self</span>.__hp = 5000  <span class="comment"># Ditambah __ (Private)</span>
+
+bos = Monster()
+print(bos.__hp) <span class="comment"># ERROR! Akses diblokir.</span></pre>
+        </div>
+
+        <!-- TAHAP 3: GETTER -->
+        <h2>3. GETTER: Jendela Melihat Data</h2>
+        <p>Jika <code>__hp</code> digembok, bagaimana game menampilkan sisa darah ke layar? Kita buat Method perantara untuk <strong>mengambil</strong> data. Method ini disebut <strong>Getter</strong>.</p>
+
+        <div class="info-box">
+            <strong>💡 MENGAPA PAKAI RETURN, BUKAN PRINT?</strong><br>
+            Getter biasanya menggunakan <code>return</code> karena tugasnya melempar data rahasia ke luar agar bisa diolah (misal: diubah jadi grafik bar darah), bukan sekadar mencetaknya.
+        </div>
+
+        <div class="example-block">
+            <div class="example-header">📄 Contoh: Fungsi Getter</div>
+            <pre>
+<span class="keyword">class</span> Monster:
+    <span class="keyword">def</span> __init__(<span class="keyword">self</span>):
+        <span class="keyword">self</span>.__hp = 5000
+    
+    <span class="keyword">def</span> cek_darah(<span class="keyword">self</span>): <span class="comment"># Ini Getter</span>
+        <span class="keyword">return</span> <span class="keyword">self</span>.__hp
+
+bos = Monster()
+print(bos.cek_darah())  <span class="comment"># Output: 5000</span></pre>
+        </div>
+
+        <!-- LAB 1 -->
+        <h2>4. Uji Coba 1: Bangun Sistem Bank</h2>
+        <p>Ubah akun bank yang bocor ini menjadi sistem yang dienkapsulasi dengan sempurna.</p>
+        <div class="mini-lab">
+            <textarea id="editor-1" class="mini-editor" spellcheck="false" style="height: 300px;">
+# HANDS-ON 1: TELLER BANK
+class AkunBank:
+    def __init__(self):
+        # 1. Tambahkan double underscore (__) pada kata saldo!
+        self.saldo = 100000 
+        
+    # 2. Buat method GETTER bernama 'get_saldo(self)' 
+    # yang me-return nilai saldo rahasia
+    
+    
+    # 3. Buat method SETTER bernama 'tarik_uang(self, jumlah)'
+    # Kurangi saldo rahasia dengan parameter jumlah.
+    
+    
+user1 = AkunBank()
+# 4. Tarik uang 20000, lalu print get_saldo()
+
+</textarea>
+            <div class="mini-toolbar">
+                <span style="color:#64748b;">TERMINAL >> HANDS-ON 01</span>
+                <button class="mini-btn" onclick="runMiniLab('editor-1', 'out-1', this)">RUN ▶</button>
+            </div>
+            <div id="out-1" class="mini-console">> ...</div>
+        </div>
+
+        <!-- TAHAP 4: SETTER DAN LAB 2 -->
+        <h2>5. Uji Coba 2: Setter sebagai "Satpam" (Validasi Data)</h2>
+        <p>Kehebatan <em>Setter</em> bukan hanya untuk mengubah data, tapi juga sebagai <strong>Satpam (Filter)</strong>. Kita bisa memasang logika <code>if-else</code> agar data yang dimasukkan masuk akal.</p>
+        <p>Di latihan ini, pastikan level karakter <strong>hanya bisa naik dan tidak bisa turun</strong>.</p>
+        
+        <div class="mini-lab">
+            <textarea id="editor-2" class="mini-editor" spellcheck="false" style="height: 380px;">
+# HANDS-ON 2: SATPAM DATA
+class Karakter:
+    def __init__(self):
+        self.__level = 1
+
+    def get_level(self):
+        return self.__level
+
+    def set_level(self, level_baru):
+        # 1. Buat pengecekan: Jika level_baru LEBIH BESAR dari self.__level
+        # 2. Maka ubah self.__level menjadi level_baru
+        # 3. else: print("Cheat terdeteksi! Level tidak bisa turun.")
+        pass
+
+player1 = Karakter()
+
+# Mari kita tes!
+player1.set_level(5)
+print("Level sekarang:", player1.get_level()) # Harus 5
+
+player1.set_level(2) # Hacker mencoba menurunkan level ke 2
+print("Level sekarang:", player1.get_level()) # Harus tetap 5
+</textarea>
+            <div class="mini-toolbar">
+                <span style="color:#64748b;">TERMINAL >> HANDS-ON 02</span>
+                <button class="mini-btn" onclick="runMiniLab('editor-2', 'out-2', this)">RUN ▶</button>
+            </div>
+            <div id="out-2" class="mini-console">> ...</div>
+        </div>
+
+        <div class="next-section">
+            <h2 style="margin-top:0; border:none; color:var(--cyber-pink);">SISTEM KEAMANAN TERPASANG.</h2>
+            <p>Kamu telah memahami cara melindungi atribut dari <em>hacker</em> dan *bug*. Silakan uji logikamu di ruang evaluasi.</p>
+            <a href="latihan4.html" class="btn-latihan">MULAI UJIAN NODE 04</a>
+        </div>
+    </div>
+
+    <footer style="text-align: center; padding: 40px; color: #475569; font-size: 0.8rem; border-top: 1px solid #1e1e2f;">
+        SMA GUNUNG MADU // INFORMATIKA // M. AZIZ AL ASSAD, S.T., GR. // 2026
+    </footer>
+
+    <script>
+        let pyodide;
+        async function main() { pyodide = await loadPyodide(); document.getElementById("loader").style.display = "none"; }
+        main();
+
+        async function runMiniLab(editorId, outputId, btn) {
+            const code = document.getElementById(editorId).value;
+            const out = document.getElementById(outputId);
+            btn.innerText = "EXECUTING...";
+            let script = `import sys\nfrom io import StringIO\nsys.stdout = mystdout = StringIO()\ntry:\n${code.split('\n').map(l => '    ' + l).join('\n')}\nexcept Exception as e: print(f"ERROR: {e}")\nmystdout.getvalue()`;
+            try {
+                let output = await pyodide.runPythonAsync(script);
+                out.innerText = output || "> Kode berhasil dijalankan (Tidak ada perintah print).";
+            } catch (err) { out.innerText = "CRITICAL ERROR"; }
+            finally { btn.innerText = "RUN ▶"; }
+        }
+    </script>
+</body>
+</html>

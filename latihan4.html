@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EVALUATION // NODE 04 ENCAPSULATION</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=JetBrains+Mono:wght@400;700&family=Silkscreen&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+
+    <style>
+        :root {
+            --bg-dark: #13141c; --bg-panel: #1e1e2f;
+            --neon-red: #ff758f; --neon-yellow: #fde047;
+            --neon-blue: #7dd3fc; --cyber-pink: #f472b6;
+            --text-main: #cbd5e1;
+            --font-ui: 'Share Tech Mono', monospace;
+            --font-code: 'JetBrains Mono', monospace;
+            --font-header: 'Silkscreen', cursive;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-dark); color: var(--text-main); font-family: var(--font-ui); margin: 0; padding: 0; 
+            height: 100vh; display: flex; flex-direction: column; overflow: hidden;
+            background-image: radial-gradient(rgba(244, 114, 182, 0.05) 1px, transparent 1px), repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.15) 3px);
+            background-size: 30px 30px, 100% 4px; box-shadow: inset 0 0 100px rgba(0,0,0,0.5);
+        }
+
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(19, 20, 28, 0.98); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px; }
+
+        input.cyber-input { background: rgba(30, 30, 47, 0.8); border: 2px solid var(--cyber-pink); color: #fff; padding: 15px; width: 300px; max-width: 100%; margin: 10px; font-family: var(--font-ui); font-size: 1.1rem; text-align: center; border-radius: 6px; }
+
+        .btn-cyber { background: var(--cyber-pink); color: #000; border: none; border-radius: 4px; padding: 15px 40px; font-family: var(--font-header); font-size: 1.2rem; cursor: pointer; margin-top: 20px; transition: 0.3s; }
+        .btn-cyber:hover { background: #fff; box-shadow: 0 0 20px rgba(244,114,182,0.5); }
+
+        header { height: 70px; background: rgba(15, 17, 26, 0.9); border-bottom: 2px solid var(--cyber-pink); display: flex; align-items: center; justify-content: space-between; padding: 0 30px; }
+        h1 { font-family: var(--font-header); font-size: 1.4rem; margin: 0; color: var(--cyber-pink); }
+        .timer-box { font-size: 1.5rem; color: #fff; font-family: var(--font-header); letter-spacing: 2px; }
+        
+        .workspace { display: flex; height: calc(100vh - 70px); }
+        .problem-panel { width: 35%; background: rgba(19, 20, 28, 0.8); border-right: 1px solid #334155; padding: 30px; overflow-y: auto; }
+        .editor-panel { width: 65%; display: flex; flex-direction: column; background: #0f111a; }
+        
+        textarea#code-editor { flex: 1; background: #0f111a; color: var(--cyber-pink); border: none; padding: 20px; font-family: var(--font-code); font-size: 16px; resize: none; outline: none; line-height: 1.5; }
+        .terminal { height: 180px; background: #000; color: #f8fafc; padding: 15px; font-family: var(--font-code); font-size: 14px; border-top: 1px solid #334155; overflow-y: auto; }
+        .toolbar { height: 65px; background: #1e1e2f; border-top: 1px solid #334155; display: flex; justify-content: flex-end; align-items: center; padding: 0 20px; gap: 15px; }
+        
+        .level-badge { background: var(--cyber-pink); color: #000; padding: 4px 10px; font-family: var(--font-header); border-radius: 4px; }
+        h2 { color: var(--neon-blue); font-family: var(--font-header); font-size: 1.2rem; margin-top: 15px;}
+
+        .btn-run { background: var(--cyber-pink); color: #000; padding: 10px 20px; border: none; border-radius: 4px; font-family: var(--font-header); cursor: pointer; }
+        .btn-next { background: var(--neon-blue); color: #000; padding: 10px 20px; border: none; border-radius: 4px; font-family: var(--font-header); cursor: pointer; display: none; }
+
+        .lock-timer { font-size: 5rem; font-family: var(--font-header); margin: 20px 0; color: var(--cyber-pink); }
+
+        @media (max-width: 768px) {
+            body { height: auto; overflow-y: auto; }
+            header { padding: 15px; height: auto; flex-direction: column; gap: 10px; }
+            .workspace { flex-direction: column; height: auto; overflow: visible; }
+            .problem-panel { width: 100%; height: auto; padding: 20px; border-right: none; border-bottom: 2px solid var(--cyber-pink); }
+            .editor-panel { width: 100%; height: auto; }
+            textarea#code-editor { height: 300px; flex: none; }
+            .terminal { height: 150px; }
+            .toolbar { flex-direction: column; height: auto; padding: 15px; gap: 10px; }
+            .btn-run, .btn-next { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- LOGIN SCREEN -->
+    <div id="login-screen" class="overlay">
+        <h1 style="font-size: 2.2rem; color: var(--neon-blue); font-family: var(--font-header);">LATIHAN: NODE 04</h1>
+        <p style="color: var(--cyber-pink); font-weight: bold; margin-bottom: 30px;">[ ENCAPSULATION ] 10 SOAL. ANTI-CHEAT ACTIVE.</p>
+        <input type="text" id="inp-nama" class="cyber-input" placeholder="NAMA LENGKAP" autocomplete="off">
+        <input type="text" id="inp-kelas" class="cyber-input" placeholder="KELAS (Ex: XI-1)" autocomplete="off">
+        <button class="btn-cyber" onclick="initializeNewExam()">MULAI EVALUASI</button>
+    </div>
+
+    <div id="loader" class="overlay" style="display:none;">
+        <h2 style="font-family: var(--font-header); color: var(--cyber-pink); font-size: 1.5rem;">COMPILING KERNEL...</h2>
+    </div>
+
+    <!-- WARNING & LOCKDOWN SCREENS -->
+    <div id="warning-screen" class="overlay" style="display:none;">
+        <h1 style="font-size: 2.5rem; font-family: var(--font-header); color: var(--neon-red);">PERINGATAN!</h1>
+        <p>Akses tab lain dilarang. Pelanggaran kedua akan mengunci sesi ini.</p>
+        <button class="btn-cyber" onclick="dismissWarning()">SAYA MENGERTI</button>
+    </div>
+
+    <div id="lockdown-screen" class="overlay" style="display:none;">
+        <h1 style="font-size: 3rem; font-family: var(--font-header);">SISTEM TERKUNCI</h1>
+        <div class="lock-timer" id="lock-timer">20:00</div>
+        <p>Melanggar protokol perpindahan tab.</p>
+    </div>
+
+    <!-- MAIN UI -->
+    <header>
+        <h1>OOP // LATIHAN_04</h1>
+        <div style="display: flex; gap: 20px; align-items: center;">
+            <div style="color: var(--cyber-pink); font-size: 0.9rem;">FAILURES: <span id="violation-count">0</span></div>
+            <div class="timer-box" id="main-timer">90:00</div>
+        </div>
+    </header>
+
+    <div class="workspace">
+        <div class="problem-panel">
+            <span class="level-badge" id="lvl-badge">SOAL 01/10</span>
+            <h2 id="q-title">...</h2>
+            <div id="q-desc" style="color:#cbd5e1; line-height:1.6; font-size: 1.1rem;">...</div>
+        </div>
+
+        <div class="editor-panel">
+            <textarea id="code-editor" spellcheck="false"></textarea>
+            <div class="terminal" id="console">> Awaiting Input...</div>
+            <div class="toolbar">
+                <span id="status-msg" style="margin-right:auto; color:var(--neon-blue)">Ready.</span>
+                <button class="btn-run" id="btn-run" onclick="runCode()">EKSEKUSI ▶</button>
+                <button class="btn-next" id="btn-next" onclick="nextQuestion()">NEXT >></button>
+            </div>
+        </div>
+    </div>
+
+    <div id="result-screen" class="overlay" style="display:none;">
+        <h1 style="font-size: 3rem; color: var(--cyber-pink); font-family: var(--font-header);">NODE COMPLETE</h1>
+        <p style="font-size: 1.2rem;">TOTAL SCORE: <span id="final-score" style="color:#fff; font-size: 2.5rem;">0</span> / 1000</p>
+        <button class="btn-cyber" onclick="window.location.href='index.html'">BACK TO HUB</button>
+    </div>
+
+    <script>
+        const GOOGLE_SCRIPT_URL = 'URL_GOOGLE_SCRIPT_ANDA_DISINI'; 
+
+        let pyodide;
+        let studentName = "", studentClass = "";
+        let examEndTime = 0; let lockEndTime = 0; 
+        let examTimerInterval, lockTimerInterval;
+        let currentQ = 0, score = 0, violations = 0;
+        let isExamActive = false, isLocked = false, isWarningOpen = false;
+        let lastPenaltyTime = 0;
+
+        // --- DATABASE SOAL ENKAPSULASI (UPDATED) ---
+        const questions = [
+            { title: "01. KUNCI HP MONSTER", desc: "Buat atribut <strong>hp</strong> menjadi <em>private</em> (gunakan <code>__</code>) dan isi dengan nilai <code>5000</code> di dalam <code>__init__</code>.", default: "class Monster:\n    def __init__(self):\n        # Buat atribut private hp di sini\n        pass\n", check: (c, o) => c.replace(/\s/g, '').includes("self.__hp=5000") },
+            { title: "02. GETTER DARAH", desc: "Buat method <code>cek_darah(self)</code> yang berfungsi me-<code>return</code> atribut <code>self.__hp</code>.", default: "class Monster:\n    def __init__(self):\n        self.__hp = 5000\n    \n    # Buat method cek_darah di sini\n", check: (c, o) => c.replace(/\s/g, '').includes("defcek_darah(self):") && c.replace(/\s/g, '').includes("returnself.__hp") },
+            { title: "03. SETTER DAMAGE", desc: "Buat method <code>terima_damage(self, dmg)</code> yang menimpa nilai <code>self.__hp</code> dengan cara menguranginya dengan parameter <code>dmg</code>.", default: "class Monster:\n    def __init__(self):\n        self.__hp = 5000\n    \n    # Buat method terima_damage di sini\n", check: (c, o) => c.replace(/\s/g, '').includes("defterima_damage(self,dmg):") && (c.replace(/\s/g, '').includes("self.__hp-=dmg") || c.replace(/\s/g, '').includes("self.__hp=self.__hp-dmg")) },
+            { title: "04. BRANKAS BANK", desc: "Di dalam class Bank, ubah atribut <code>saldo</code> menjadi private dan beri nilai awal <code>0</code>.", default: "class Bank:\n    def __init__(self):\n        # Buat private atribut saldo\n        pass\n", check: (c, o) => c.replace(/\s/g, '').includes("self.__saldo=0") },
+            { title: "05. GETTER SALDO", desc: "Buat method <code>get_saldo(self)</code> yang me-return <code>self.__saldo</code>.", default: "class Bank:\n    def __init__(self):\n        self.__saldo = 100\n    # Buat getter get_saldo\n", check: (c, o) => c.replace(/\s/g, '').includes("defget_saldo(self):") && c.replace(/\s/g, '').includes("returnself.__saldo") },
+            { title: "06. SETTER ANTI-MINUS", desc: "Buat method <code>setor(self, jumlah)</code>. Tambahkan saldo dengan <code>jumlah</code> <strong>HANYA JIKA</strong> <code>jumlah > 0</code>.", default: "class Bank:\n    def __init__(self):\n        self.__saldo = 0\n    def setor(self, jumlah):\n        # Gunakan if jumlah > 0\n        pass\n", check: (c, o) => c.replace(/\s/g, '').includes("ifjumlah>0:") && (c.replace(/\s/g, '').includes("self.__saldo+=jumlah") || c.replace(/\s/g, '').includes("self.__saldo=self.__saldo+jumlah")) },
+            { title: "07. EKSEKUSI SETTER", desc: "Gunakan method <code>setor(50000)</code> untuk menabung ke objek <strong>user1</strong>.", default: "class Bank:\n    def __init__(self):\n        self.__saldo = 0\n    def setor(self, jumlah):\n        self.__saldo += jumlah\n\nuser1 = Bank()\n# Panggil method setor di sini\n", check: (c, o) => c.replace(/\s/g, '').includes("user1.setor(50000)") },
+            { title: "08. SATPAM LEVEL (GETTER)", desc: "Buat method <code>get_level(self)</code> untuk mengambil/me-return nilai <code>self.__level</code>.", default: "class Karakter:\n    def __init__(self):\n        self.__level = 1\n    # Buat get_level di sini\n", check: (c, o) => c.replace(/\s/g, '').includes("defget_level(self):") && c.replace(/\s/g, '').includes("returnself.__level") },
+            { title: "09. SATPAM LEVEL (SETTER)", desc: "Buat <code>set_level(self, lv_baru)</code>. Ubah <code>self.__level</code> menjadi <code>lv_baru</code> <strong>JIKA</strong> <code>lv_baru > self.__level</code>.", default: "class Karakter:\n    def __init__(self):\n        self.__level = 1\n    def set_level(self, lv_baru):\n        # Gunakan if lv_baru > self.__level\n        pass\n", check: (c, o) => c.replace(/\s/g, '').includes("iflv_baru>self.__level:") && c.replace(/\s/g, '').includes("self.__level=lv_baru") },
+            { title: "10. FINAL TEST", desc: "1. Panggil <code>set_level(5)</code> dari <strong>p1</strong>.<br>2. Gunakan perintah <code>print()</code> untuk mencetak hasil dari <code>p1.get_level()</code>", default: "class Karakter:\n    def __init__(self):\n        self.__level = 1\n    def get_level(self):\n        return self.__level\n    def set_level(self, lv):\n        self.__level = lv\n\np1 = Karakter()\n# Panggil set_level dan print get_level\n", check: (c, o) => c.replace(/\s/g, '').includes("p1.set_level(5)") && c.replace(/\s/g, '').includes("print(p1.get_level())") && o.includes("5") }
+        ];
+
+        window.onload = function() {
+            if (localStorage.getItem("oop4_active") === "true") {
+                studentName = localStorage.getItem("oop4_name");
+                studentClass = localStorage.getItem("oop4_class");
+                examEndTime = parseInt(localStorage.getItem("oop4_examEnd"));
+                currentQ = parseInt(localStorage.getItem("oop4_currentQ"));
+                score = parseInt(localStorage.getItem("oop4_score"));
+                violations = parseInt(localStorage.getItem("oop4_violations")) || 0;
+                document.getElementById("violation-count").innerText = violations;
+                document.getElementById("login-screen").style.display = "none";
+                document.getElementById("loader").style.display = "flex";
+                initPython(true); 
+            } else if (localStorage.getItem("oop4_active") === "finished") {
+                document.getElementById("login-screen").innerHTML = "<h1>ALREADY FINISHED.</h1>";
+            }
+        };
+
+        function initializeNewExam() {
+            studentName = document.getElementById("inp-nama").value.trim();
+            studentClass = document.getElementById("inp-kelas").value.trim();
+            if(!studentName || !studentClass) return alert("Fill data.");
+            localStorage.setItem("oop4_active", "true");
+            localStorage.setItem("oop4_name", studentName);
+            localStorage.setItem("oop4_class", studentClass);
+            localStorage.setItem("oop4_score", "0");
+            localStorage.setItem("oop4_currentQ", "0");
+            localStorage.setItem("oop4_violations", "0");
+            examEndTime = Date.now() + (5400 * 1000);
+            localStorage.setItem("oop4_examEnd", examEndTime.toString());
+            document.getElementById("login-screen").style.display = "none";
+            document.getElementById("loader").style.display = "flex";
+            initPython(false);
+        }
+
+        async function initPython(isResume) {
+            try {
+                pyodide = await loadPyodide();
+                document.getElementById("loader").style.display = "none";
+                isExamActive = true;
+                startMainTimer();
+                loadQuestion(currentQ);
+                document.addEventListener('visibilitychange', handleVisibilityChange);
+                window.addEventListener('blur', handleWindowBlur);
+                if (isResume) {
+                    let savedLockEnd = parseInt(localStorage.getItem("oop4_lockEnd")) || 0;
+                    if (savedLockEnd > Date.now()) { lockEndTime = savedLockEnd; resumeLockdown(); }
+                }
+            } catch (err) { alert("Kernel Fail."); }
+        }
+
+        function handleVisibilityChange() { if (document.hidden && isExamActive) applyPenalty(); }
+        function handleWindowBlur() { if (isExamActive) applyPenalty(); }
+        function applyPenalty() {
+            let now = Date.now(); if (now - lastPenaltyTime < 1000) return; lastPenaltyTime = now;
+            violations++; localStorage.setItem("oop4_violations", violations.toString());
+            document.getElementById("violation-count").innerText = violations;
+            if (violations === 1) { isWarningOpen = true; document.getElementById("warning-screen").style.display = "flex"; }
+            else { if(isWarningOpen) document.getElementById("warning-screen").style.display = "none"; isWarningOpen = false;
+                lockEndTime = Date.now() + (1200 * 1000); localStorage.setItem("oop4_lockEnd", lockEndTime.toString()); resumeLockdown(); 
+            }
+        }
+        function dismissWarning() { document.getElementById("warning-screen").style.display = "none"; isWarningOpen = false; }
+        function resumeLockdown() {
+            isLocked = true; document.getElementById("lockdown-screen").style.display = "flex";
+            clearInterval(lockTimerInterval);
+            lockTimerInterval = setInterval(() => {
+                let timeLeft = Math.max(0, Math.floor((lockEndTime - Date.now()) / 1000));
+                let m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+                let s = (timeLeft % 60).toString().padStart(2, '0');
+                document.getElementById('lock-timer').innerText = `${m}:${s}`;
+                if(Date.now() >= lockEndTime) { clearInterval(lockTimerInterval); document.getElementById("lockdown-screen").style.display = "none"; isLocked = false; localStorage.removeItem("oop4_lockEnd"); }
+            }, 1000);
+        }
+        function startMainTimer() {
+            examTimerInterval = setInterval(() => {
+                let timeLeft = Math.max(0, Math.floor((examEndTime - Date.now()) / 1000));
+                if(timeLeft <= 0) { finishExam(); } else {
+                    let m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+                    let s = (timeLeft % 60).toString().padStart(2, '0');
+                    document.getElementById('main-timer').innerText = `${m}:${s}`;
+                }
+            }, 1000);
+        }
+
+        function loadQuestion(idx) {
+            const q = questions[idx];
+            document.getElementById("lvl-badge").innerText = `SOAL ${String(idx+1).padStart(2,'0')}/10`;
+            document.getElementById("q-title").innerText = q.title;
+            document.getElementById("q-desc").innerHTML = q.desc;
+            document.getElementById("code-editor").value = q.default;
+            document.getElementById("btn-next").style.display = "none";
+            document.getElementById("btn-run").disabled = false;
+            document.getElementById("console").innerText = "> ...";
+        }
+
+        async function runCode() {
+            if(isLocked || isWarningOpen) return;
+            const btn = document.getElementById("btn-run");
+            const term = document.getElementById("console");
+            const code = document.getElementById("code-editor").value;
+            const q = questions[currentQ];
+            btn.disabled = true; term.innerText = "> Running...";
+            let script = `import sys\nfrom io import StringIO\nsys.stdout = mystdout = StringIO()\ntry:\n${code.split('\n').map(l=>'    '+l).join('\n')}\nexcept Exception as e: print(f"Error: {e}")\nmystdout.getvalue()`;
+            try {
+                let out = await pyodide.runPythonAsync(script); term.innerText = out;
+                if(out.includes("Error:")) { document.getElementById("status-msg").innerText = "[!] ERROR"; }
+                else if(q.check(code, out)) { document.getElementById("status-msg").innerText = "[+] CORRECT"; document.getElementById("btn-next").style.display = "inline-block"; if(!q.completed) { score += 100; q.completed = true; localStorage.setItem("oop4_score", score.toString()); } }
+                else { document.getElementById("status-msg").innerText = "[-] WRONG"; }
+            } catch (e) { term.innerText = "Error: " + e; } finally { btn.disabled = false; }
+        }
+
+        function nextQuestion() {
+            currentQ++; if(currentQ < questions.length) { localStorage.setItem("oop4_currentQ", currentQ.toString()); loadQuestion(currentQ); }
+            else { finishExam(); }
+        }
+
+        function finishExam() {
+            isExamActive = false; clearInterval(examTimerInterval); clearInterval(lockTimerInterval);
+            localStorage.setItem("oop4_active", "finished");
+            document.getElementById("result-screen").style.display = "flex";
+            document.getElementById("final-score").innerText = score;
+            sendDataToSheet();
+        }
+
+        function sendDataToSheet() {
+            let timeUsedSeconds = Math.max(0, 5400 - Math.floor((examEndTime - Date.now()) / 1000));
+            let m = Math.floor(timeUsedSeconds / 60).toString().padStart(2, '0');
+            let s = (timeUsedSeconds % 60).toString().padStart(2, '0');
+            const payload = { nama: studentName + " (OOP-4)", kelas: studentClass, skor: score, durasi: `${m}:${s}`, pelanggaran: violations };
+            fetch(GOOGLE_SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
+        }
+    </script>
+</body>
+</html>
